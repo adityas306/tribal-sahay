@@ -1,0 +1,9 @@
+from app.routes.auth import router as auth_router
+from app.routes.profile import router as profile_router
+from app.routes.schemes import router as schemes_router
+from app.routes.eligibility import router as eligibility_router
+from app.routes.applications import router as applications_router
+from app.routes.documents import router as documents_router
+from app.routes.notifications import router as notifications_router
+from app.routes.stats import router as stats_router
+from app.routes.chat import router as chat_router

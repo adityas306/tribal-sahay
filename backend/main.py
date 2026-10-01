@@ -132,7 +132,6 @@ def health():
     return {
         "status": "ok"
     }
-<<<<<<< HEAD
 
 
 
@@ -142,5 +141,3 @@ key = os.getenv("GEMINI_API_KEY")
 print("Key exists:", bool(key))
 print("Key length:", len(key) if key else 0)
 print("Key prefix:", key[:6] if key else None)
-=======
->>>>>>> 4ab0f01f905f5d3ab15eaf159379c0c2652ae8d5

@@ -1,3 +1,11 @@
+from dotenv import load_dotenv
+import os
+
+
+# Load environment variables before importing the AI service
+load_dotenv()
+
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -49,11 +57,15 @@ app = FastAPI(
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://tribal-sahay.vercel.app",
 ]
 
-# If FRONTEND_URL is configured, add it too
+
+# Add FRONTEND_URL if it is configured
 if getattr(settings, "FRONTEND_URL", None):
+
     for origin in settings.FRONTEND_URL.split(","):
+
         origin = origin.strip()
 
         if origin and origin not in origins:
@@ -62,9 +74,13 @@ if getattr(settings, "FRONTEND_URL", None):
 
 app.add_middleware(
     CORSMiddleware,
+
     allow_origins=origins,
+
     allow_credentials=True,
+
     allow_methods=["*"],
+
     allow_headers=["*"],
 )
 
@@ -74,13 +90,21 @@ app.add_middleware(
 # --------------------------------------------------
 
 app.include_router(auth_router)
+
 app.include_router(profile_router)
+
 app.include_router(schemes_router)
+
 app.include_router(eligibility_router)
+
 app.include_router(applications_router)
+
 app.include_router(documents_router)
+
 app.include_router(notifications_router)
+
 app.include_router(stats_router)
+
 app.include_router(chat_router)
 
 
@@ -90,6 +114,7 @@ app.include_router(chat_router)
 
 @app.get("/")
 def root():
+
     return {
         "service": "TribalSahay API",
         "status": "online",
@@ -97,8 +122,22 @@ def root():
     }
 
 
+# --------------------------------------------------
+# Health Check
+# --------------------------------------------------
+
 @app.get("/health")
 def health():
+
     return {
         "status": "ok"
     }
+
+
+
+
+key = os.getenv("GEMINI_API_KEY")
+
+print("Key exists:", bool(key))
+print("Key length:", len(key) if key else 0)
+print("Key prefix:", key[:6] if key else None)

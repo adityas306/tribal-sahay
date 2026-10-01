@@ -12,6 +12,7 @@ from app.models.document import Document
 from app.schemas.chat import ChatRequest
 
 from app.services.eligibility import check_eligibility
+from app.services.jago_ai import generate_jago_response
 
 
 router = APIRouter(
@@ -20,14 +21,76 @@ router = APIRouter(
 )
 
 
+def build_user_context(
+    user: User,
+    applications: list,
+    documents: list
+):
+
+    application_data = []
+
+    for app in applications:
+
+        application_data.append({
+            "id": app.id,
+            "scheme_id": app.scheme_id,
+            "status": app.status,
+            "stage": app.stage,
+            "amount": app.amount,
+            "payment": app.payment,
+            "deficiency": app.deficiency,
+            "submitted_at": app.submitted_at
+        })
+
+
+    document_data = []
+
+    for doc in documents:
+
+        document_data.append({
+            "name": doc.name,
+            "status": doc.status
+        })
+
+
+    try:
+
+        eligibility_data = check_eligibility(user)
+
+    except Exception:
+
+        eligibility_data = []
+
+
+    return {
+
+        "user": {
+            "name": user.name,
+            "state": user.state,
+            "category": user.category,
+            "income": user.income,
+            "education": user.education,
+            "course": user.course,
+            "year": user.year,
+            "institution": user.institution,
+            "has_disability": user.has_disability,
+            "net_jrf": user.net_jrf
+        },
+
+        "applications": application_data,
+
+        "documents": document_data,
+
+        "eligibility": eligibility_data
+    }
+
+
 @router.post("")
 def chat(
     req: ChatRequest,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-
-    q = req.message.lower().strip()
 
     applications = (
         db.query(Application)
@@ -40,6 +103,7 @@ def chat(
         .all()
     )
 
+
     documents = (
         db.query(Document)
         .filter(
@@ -48,108 +112,46 @@ def chat(
         .all()
     )
 
-    if "status" in q or "application" in q:
 
-        if not applications:
+    context = build_user_context(
+        user,
+        applications,
+        documents
+    )
 
-            return {
-                "reply":
-                "You have not submitted any scholarship application yet."
-            }
 
-        latest = applications[0]
+    history = getattr(
+        req,
+        "history",
+        []
+    )
 
-        return {
-            "reply":
-            f"Your latest application status is "
-            f"{latest.status}. "
-            f"Current stage: {latest.stage}."
-        }
 
-    if (
-        "document" in q
-        or "documents" in q
-        or "doc" in q
-    ):
+    try:
 
-        pending = [
-            d.name
-            for d in documents
-            if d.status != "Verified"
-        ]
-
-        if pending:
-
-            return {
-                "reply":
-                "Pending document actions: "
-                + ", ".join(pending)
-            }
+        reply = generate_jago_response(
+            message=req.message,
+            context=context,
+            history=history
+        )
 
         return {
-            "reply":
-            "All your uploaded documents are verified."
+            "reply": reply,
+            "ai": True
         }
 
-    if (
-        "scholarship" in q
-        or "eligible" in q
-        or "eligibility" in q
-        or "which" in q
-    ):
+    except Exception as e:
 
-        eligible = [
-            x["name"]
-            for x in check_eligibility(user)
-            if x["eligible"]
-        ]
-
-        if not eligible:
-
-            return {
-                "reply":
-                "No matching scheme was found by the demo eligibility engine. "
-                "Please check official scheme criteria."
-            }
+        print(
+            "JAGO AI ERROR:",
+            str(e)
+        )
 
         return {
-            "reply":
-            "Based on the demo eligibility engine, "
-            "matching schemes are: "
-            + ", ".join(eligible)
-            + ". Final eligibility must be verified "
-              "against official scheme rules."
+            "reply": (
+                "JAGO AI ko abhi AI service se connect "
+                "karne mein problem aa rahi hai. "
+                "Please thodi der baad try karo."
+            ),
+            "ai": False
         }
-
-    if (
-        "payment" in q
-        or "dbt" in q
-    ):
-
-        if not applications:
-
-            return {
-                "reply":
-                "There is no scholarship application to show payment status for."
-            }
-
-        return {
-            "reply":
-            f"Your latest application payment status is: "
-            f"{applications[0].payment}."
-        }
-
-    if "hello" in q or "hi" in q:
-
-        return {
-            "reply":
-            "Hello! I am JAGO, your TribalSahay scholarship assistant. "
-            "You can ask me about eligibility, applications, documents "
-            "or payment status."
-        }
-
-    return {
-        "reply":
-        "I can help with scholarship eligibility, application status, "
-        "documents, verification, payment/DBT status and scheme information."
-    }

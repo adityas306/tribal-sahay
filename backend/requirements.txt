@@ -9,4 +9,8 @@ passlib
 psycopg2-binary
 python-multipart
 email-validator
+<<<<<<< HEAD
 google-genai
+=======
+psycopg[binary]
+>>>>>>> 4ab0f01f905f5d3ab15eaf159379c0c2652ae8d5

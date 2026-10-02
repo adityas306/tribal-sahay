@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-
+from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -10,9 +10,7 @@ from app.models.application import Application
 from app.models.document import Document
 
 from app.schemas.chat import ChatRequest
-
-from app.services.eligibility import check_eligibility
-from app.services.jago_ai import generate_jago_response
+from app.services.jago_ai import stream_jago_response
 
 
 router = APIRouter(
@@ -21,137 +19,131 @@ router = APIRouter(
 )
 
 
-def build_user_context(
-    user: User,
-    applications: list,
-    documents: list
-):
+def needs_database(message):
 
-    application_data = []
+    keywords = [
+        "application",
+        "status",
+        "scholarship",
+        "document",
+        "documents",
+        "eligibility",
+        "eligible",
+        "payment",
+        "apply",
+        "आवेदन",
+        "छात्रवृत्ति",
+        "दस्तावेज",
+        "पेमेंट",
+        "पैसा",
+        "योग्यता"
+    ]
 
-    for app in applications:
+    message = message.lower()
 
-        application_data.append({
-            "id": app.id,
-            "scheme_id": app.scheme_id,
-            "status": app.status,
-            "stage": app.stage,
-            "amount": app.amount,
-            "payment": app.payment,
-            "deficiency": app.deficiency,
-            "submitted_at": app.submitted_at
-        })
-
-
-    document_data = []
-
-    for doc in documents:
-
-        document_data.append({
-            "name": doc.name,
-            "status": doc.status
-        })
+    return any(
+        word in message
+        for word in keywords
+    )
 
 
-    try:
+def build_context(user, db, message):
 
-        eligibility_data = check_eligibility(user)
-
-    except Exception:
-
-        eligibility_data = []
-
-
-    return {
-
-        "user": {
-            "name": user.name,
-            "state": user.state,
-            "category": user.category,
-            "income": user.income,
-            "education": user.education,
-            "course": user.course,
-            "year": user.year,
-            "institution": user.institution,
-            "has_disability": user.has_disability,
-            "net_jrf": user.net_jrf
-        },
-
-        "applications": application_data,
-
-        "documents": document_data,
-
-        "eligibility": eligibility_data
+    context = {
+        "name": getattr(user, "name", None),
+        "state": getattr(user, "state", None),
+        "category": getattr(user, "category", None),
+        "education": getattr(user, "education", None),
+        "course": getattr(user, "course", None),
+        "year": getattr(user, "year", None),
     }
 
-
-@router.post("")
-def chat(
-    req: ChatRequest,
-    user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+    if not needs_database(message):
+        return context
 
     applications = (
         db.query(Application)
         .filter(
             Application.user_id == user.id
         )
-        .order_by(
-            Application.submitted_at.desc()
-        )
+        .limit(5)
         .all()
     )
-
 
     documents = (
         db.query(Document)
         .filter(
             Document.user_id == user.id
         )
+        .limit(10)
         .all()
     )
 
+    context["applications"] = [
+        {
+            "id": getattr(app, "id", None),
+            "status": getattr(app, "status", None)
+        }
+        for app in applications
+    ]
 
-    context = build_user_context(
+    context["documents"] = [
+        {
+            "name": getattr(doc, "name", None),
+            "status": getattr(doc, "status", None)
+        }
+        for doc in documents
+    ]
+
+    return context
+
+
+@router.post("")
+def chat(
+    request: ChatRequest,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    context = build_context(
         user,
-        applications,
-        documents
+        db,
+        request.message
     )
 
+    def generate():
 
-    history = getattr(
-        req,
-        "history",
-        []
+        try:
+
+            for text in stream_jago_response(
+                message=request.message,
+                context=context,
+                history=request.history
+            ):
+                yield f"data: {text}\n\n"
+
+            yield "data: [DONE]\n\n"
+
+        except Exception as error:
+
+            print(
+                "JAGO ERROR:",
+                error
+            )
+
+            yield (
+                "data: JAGO temporarily "
+                "unavailable.\n\n"
+            )
+
+            yield "data: [DONE]\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
     )
-
-
-    try:
-
-        reply = generate_jago_response(
-            message=req.message,
-            context=context,
-            history=history
-        )
-
-        return {
-            "reply": reply,
-            "ai": True
-        }
-
-    except Exception as e:
-
-        print(
-            "JAGO AI ERROR:",
-            str(e)
-        )
-
-        return {
-            "reply": (
-                "JAGO AI ko abhi AI service se connect "
-                "karne mein problem aa rahi hai. "
-                "Please thodi der baad try karo."
-            ),
-            "ai": False
-        }

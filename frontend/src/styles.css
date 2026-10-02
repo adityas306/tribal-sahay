@@ -2237,3 +2237,78 @@ footer {
 .passwordToggle:hover {
   color: var(--primary);
 }
+
+
+/* JAGO Markdown */
+
+.chatMsgs .bot {
+  line-height: 1.6;
+}
+
+.chatMsgs .bot p {
+  margin: 0 0 12px;
+}
+
+.chatMsgs .bot p:last-child {
+  margin-bottom: 0;
+}
+
+.chatMsgs .bot strong {
+  font-weight: 700;
+}
+
+.chatMsgs .bot ul,
+.chatMsgs .bot ol {
+  margin: 8px 0 12px;
+  padding-left: 22px;
+}
+
+.chatMsgs .bot li {
+  margin-bottom: 5px;
+}
+
+/* Headings */
+
+.chatMsgs .bot h1,
+.chatMsgs .bot h2,
+.chatMsgs .bot h3 {
+  margin: 14px 0 8px;
+  line-height: 1.3;
+}
+
+/* Tables */
+
+.chatMsgs .bot table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 14px 0;
+  font-size: 14px;
+}
+
+.chatMsgs .bot th,
+.chatMsgs .bot td {
+  border: 1px solid #d6d6d6;
+  padding: 9px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.chatMsgs .bot th {
+  font-weight: 700;
+}
+
+/* Code */
+
+.chatMsgs .bot code {
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+/* Blockquote */
+
+.chatMsgs .bot blockquote {
+  margin: 10px 0;
+  padding-left: 12px;
+  border-left: 3px solid #999;
+}

@@ -9,5 +9,5 @@ passlib
 psycopg2-binary
 python-multipart
 email-validator
-google-genai
 psycopg[binary]
+groq

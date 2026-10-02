@@ -1,227 +1,181 @@
 import os
-import json
 
-from google import genai
+from groq import Groq
 
 
-# --------------------------------------------------
-# Gemini Configuration
-# --------------------------------------------------
-
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-GEMINI_MODEL = os.getenv(
-    "GEMINI_MODEL",
-    "gemini-3.8-flash"
+client = Groq(
+    api_key=os.getenv("GROQ_API_KEY")
 )
 
 
-if not GEMINI_API_KEY:
-    raise RuntimeError(
-        "GEMINI_API_KEY is not configured"
-    )
-
-
-client = genai.Client(
-    api_key=GEMINI_API_KEY
+MODEL = os.getenv(
+    "GROQ_MODEL",
+    "openai/gpt-oss-120b"
 )
 
-
-# --------------------------------------------------
-# JAGO System Instructions
-# --------------------------------------------------
 
 SYSTEM_PROMPT = """
-You are JAGO AI, the intelligent problem-solving
-assistant inside TribalSahay.
+You are JAGO AI, the assistant of TribalSahay.
 
-Your job is NOT to behave like a fixed FAQ chatbot.
+Your job is to help users with:
 
-You should behave like a helpful AI problem solver.
+- scholarships
+- government schemes
+- applications
+- documents
+- eligibility
+- payments
+- application status
+- scholarship-related problems
 
-Your responsibilities:
 
-1. Understand the user's actual problem.
+GENERAL RULES:
 
-2. Have a natural conversation with the user.
+- Answer directly.
+- Keep answers short, practical and useful.
+- Reply in the user's language.
+- If the user speaks Hinglish, reply in natural Hinglish.
+- If the user speaks Hindi, reply in Hindi.
+- If the user speaks English, reply in English.
+- Never invent personal information.
+- Never invent application status.
+- Never claim that an application was approved, rejected or paid unless that information is available in the provided context.
+- If information is unavailable, clearly say so.
 
-3. Use previous conversation context.
 
-4. Analyze complex problems step by step.
+FORMATTING RULES:
 
-5. Use available user/application information.
+- Always keep the response well organized and easy to scan.
+- Use Markdown formatting.
+- Use a short heading when the answer contains multiple sections.
+- Use bullet points for lists.
+- Use numbered lists for step-by-step instructions.
+- Use **bold** for important information.
+- Use Markdown tables when comparing scholarships, schemes, benefits, eligibility, documents or application steps.
+- Keep tables concise and avoid unnecessarily wide tables.
+- Add blank lines between different sections.
+- Do not put the entire answer inside one large paragraph.
+- Do not use unnecessary emojis.
+- Give practical next steps whenever appropriate.
 
-6. Provide practical and actionable solutions.
 
-7. If the problem cannot be solved directly,
-   explain what the user should do next.
+SCHOLARSHIP QUESTIONS:
 
-8. Ask clarification questions only when necessary.
+When discussing scholarships, try to organize information using:
 
-9. Never invent application status, payment status,
-   eligibility, documents, or government information.
+1. Scholarship/Scheme name
+2. Eligibility
+3. Benefits
+4. Required documents
+5. Application process
+6. Important dates, if known
+7. Official portal/source, if known
 
-10. Clearly distinguish actual user data from
-    general information.
+Do not invent scholarship amounts, dates or eligibility criteria.
 
-11. Try to solve problems outside predefined FAQ topics.
+If exact information is not available, clearly say:
+"Exact details official portal par verify karna best rahega."
 
-12. Respond in the same language as the user.
 
-13. If the user uses Hinglish, respond in Hinglish.
+APPLICATION STATUS:
 
-14. If the user uses Hindi, respond in Hindi.
+If the user asks about their application status:
 
-15. If the user uses English, respond in English.
+- Use the application information provided in the context.
+- Clearly mention the current status if available.
+- Do not guess missing information.
+- If no application record is available, tell the user that no matching application information is available.
 
-16. Prefer step-by-step solutions for problems.
 
-17. Never say:
-    "I can only answer questions about..."
+PERSONAL INFORMATION:
 
-18. Always try to understand the user's real goal.
+Use the user's provided context only when it is relevant.
 
-19. If more information is required, ask for it naturally.
+Never reveal sensitive information unnecessarily.
 
-You are an AI problem solver, not a keyword-based chatbot.
 """
 
 
-# --------------------------------------------------
-# Generate JAGO Response
-# --------------------------------------------------
-
-def generate_jago_response(
-    message: str,
-    context: dict,
+def build_messages(
+    message,
+    context,
     history=None
 ):
 
-    if history is None:
-        history = []
+    history = history or []
 
+    messages = [
+        {
+            "role": "system",
+            "content": SYSTEM_PROMPT
+        }
+    ]
 
-    # --------------------------------------------------
-    # Prepare user context
-    # --------------------------------------------------
+    # Previous conversation
+    for item in history[-6:]:
 
-    context_text = json.dumps(
-        context,
-        indent=2,
-        default=str
-    )
-
-
-    # --------------------------------------------------
-    # Build conversation history
-    # --------------------------------------------------
-
-    conversation = []
-
-    for item in history[-10:]:
-
-        conversation.append({
-            "type": "user_input"
-            if item.role == "user"
-            else "model_output",
-
-            "content": [
-                {
-                    "type": "text",
-                    "text": item.text
-                }
-            ]
+        messages.append({
+            "role": (
+                "user"
+                if item.role == "user"
+                else "assistant"
+            ),
+            "content": item.text[:1500]
         })
 
+    # User context
+    context_text = f"""
+User Information:
 
-    # --------------------------------------------------
-    # Add current user message
-    # --------------------------------------------------
+Name: {context.get("name", "Unknown")}
+State: {context.get("state", "Unknown")}
+Category: {context.get("category", "Unknown")}
+Education: {context.get("education", "Unknown")}
+Course: {context.get("course", "Unknown")}
+Year: {context.get("year", "Unknown")}
 
-    current_message = f"""
-USER PROFILE AND AVAILABLE DATA:
-
-{context_text}
-
-
-CURRENT USER MESSAGE:
-
+User Question:
 {message}
-
-
-Analyze the user's problem carefully.
-
-Use actual available data whenever relevant.
-
-Do not invent information.
-
-If some information is missing, explain what
-information is required.
-
-Try to provide a practical solution and clear
-next steps instead of a generic FAQ answer.
 """
 
-
-    conversation.append({
-        "type": "user_input",
-
-        "content": [
-            {
-                "type": "text",
-                "text": current_message
-            }
-        ]
+    messages.append({
+        "role": "user",
+        "content": context_text
     })
 
+    return messages
 
-    # --------------------------------------------------
-    # Call Gemini Interactions API
-    # --------------------------------------------------
 
-    interaction = client.interactions.create(
+def stream_jago_response(
+    message,
+    context,
+    history=None
+):
 
-        model=GEMINI_MODEL,
-
-        input=conversation,
-
-        system_instruction=SYSTEM_PROMPT,
-
-        store=False
+    messages = build_messages(
+        message,
+        context,
+        history
     )
 
-
-    # --------------------------------------------------
-    # Extract AI response
-    # --------------------------------------------------
-
-    if hasattr(interaction, "output_text"):
-
-        if interaction.output_text:
-
-            return interaction.output_text.strip()
-
-
-    # --------------------------------------------------
-    # Fallback response extraction
-    # --------------------------------------------------
-
-    if hasattr(interaction, "steps"):
-
-        for step in reversed(interaction.steps):
-
-            if hasattr(step, "content"):
-
-                for content in reversed(step.content):
-
-                    if hasattr(content, "text"):
-
-                        if content.text:
-
-                            return content.text.strip()
-
-
-    return (
-        "JAGO abhi response generate nahi kar pa raha hai. "
-        "Please thodi der baad try karo."
+    stream = client.chat.completions.create(
+        model=MODEL,
+        messages=messages,
+        temperature=0.2,
+        max_tokens=500,
+        stream=True
     )
+
+    for chunk in stream:
+
+        if not chunk.choices:
+            continue
+
+        text = (
+            chunk.choices[0]
+            .delta
+            .content
+        )
+
+        if text:
+            yield text

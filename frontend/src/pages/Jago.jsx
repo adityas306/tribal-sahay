@@ -1,4 +1,6 @@
 import { useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 import API from "../api/api";
 
@@ -18,99 +20,255 @@ function Jago() {
   const sendMessage = async (event) => {
     event.preventDefault();
 
-    // Prevent sending empty messages or multiple requests while loading
     if (!question.trim() || loading) return;
 
     const userQuestion = question.trim();
 
-    /*
-      Convert the existing conversation into the format
-      expected by the backend AI service.
-    */
-    const history = messages.map((message) => ({
+    // Chat history
+    const history = messages.slice(-6).map((message) => ({
       role:
         message.role === "user"
           ? "user"
-          : "model",
+          : "assistant",
       text: message.text,
     }));
 
-    // Immediately display the user's message in the chat
+    // Add user message + empty bot message
     setMessages((previous) => [
       ...previous,
       {
         role: "user",
         text: userQuestion,
       },
+      {
+        role: "bot",
+        text: "",
+      },
     ]);
 
-    // Clear the input field
     setQuestion("");
-
-    // Show the loading state while JAGO processes the request
     setLoading(true);
 
     try {
-      /*
-        Send the current question along with the previous
-        conversation history to the backend.
-      */
-      const response = await API.post(
-        "/api/chat",
-        {
-          message: userQuestion,
+      const token = localStorage.getItem("ts_token");
 
-          // Send previous messages so the AI can understand context
-          history: history,
+      const baseURL =
+        API.defaults.baseURL || "http://localhost:8000";
+
+      const response = await fetch(
+        `${baseURL}/api/chat`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type": "application/json",
+
+            ...(token
+              ? {
+                  Authorization: `Bearer ${token}`,
+                }
+              : {}),
+          },
+
+          body: JSON.stringify({
+            message: userQuestion,
+            history: history,
+          }),
         }
       );
 
-      /*
-        Read the AI response from the backend.
-        The fallback message is used if no response is returned.
-      */
-      const reply =
-        response.data?.reply ||
-        response.data?.answer ||
-        "JAGO could not generate a solution right now.";
+      if (!response.ok) {
+        let detail = "JAGO server error.";
 
-      // Add JAGO's response to the conversation
-      setMessages((previous) => [
-        ...previous,
-        {
-          role: "bot",
-          text: reply,
-        },
-      ]);
+        try {
+          const data = await response.json();
+
+          detail =
+            data?.detail || detail;
+        } catch {
+          // Keep default error
+        }
+
+        throw new Error(detail);
+      }
+
+      if (!response.body) {
+        throw new Error(
+          "Streaming response is not available."
+        );
+      }
+
+      const reader =
+        response.body.getReader();
+
+      const decoder =
+        new TextDecoder("utf-8");
+
+      let buffer = "";
+      let botReply = "";
+
+      const updateBotMessage = (text) => {
+        setMessages((previous) => {
+          const updated = [...previous];
+
+          const lastIndex =
+            updated.length - 1;
+
+          if (
+            updated[lastIndex]?.role === "bot"
+          ) {
+            updated[lastIndex] = {
+              ...updated[lastIndex],
+              text: text,
+            };
+          }
+
+          return updated;
+        });
+      };
+
+      while (true) {
+        const {
+          value,
+          done,
+        } = await reader.read();
+
+        if (done) break;
+
+        buffer += decoder.decode(
+          value,
+          {
+            stream: true,
+          }
+        );
+
+        const events =
+          buffer.split("\n\n");
+
+        buffer =
+          events.pop() || "";
+
+        for (const eventText of events) {
+          const lines =
+            eventText.split("\n");
+
+          for (const line of lines) {
+            if (
+              !line.startsWith("data: ")
+            ) {
+              continue;
+            }
+
+            const rawData =
+              line.slice(6);
+
+            if (
+              rawData === "[DONE]"
+            ) {
+              continue;
+            }
+
+            let chunk = rawData;
+
+            // JSON response support
+            try {
+              chunk =
+                JSON.parse(rawData);
+            } catch {
+              // Plain text support
+            }
+
+            if (
+              typeof chunk !== "string"
+            ) {
+              continue;
+            }
+
+            botReply += chunk;
+
+            updateBotMessage(
+              botReply
+            );
+          }
+        }
+      }
+
+      // Process remaining buffer
+      if (buffer.trim()) {
+        const lines =
+          buffer.split("\n");
+
+        for (const line of lines) {
+          if (
+            !line.startsWith("data: ")
+          ) {
+            continue;
+          }
+
+          const rawData =
+            line.slice(6);
+
+          if (
+            rawData === "[DONE]"
+          ) {
+            continue;
+          }
+
+          let chunk = rawData;
+
+          try {
+            chunk =
+              JSON.parse(rawData);
+          } catch {
+            // Plain text support
+          }
+
+          if (
+            typeof chunk === "string"
+          ) {
+            botReply += chunk;
+
+            updateBotMessage(
+              botReply
+            );
+          }
+        }
+      }
+
+      if (!botReply.trim()) {
+        updateBotMessage(
+          "JAGO response generate nahi kar paaya. Please try again."
+        );
+      }
+
     } catch (error) {
-      // Log the error for debugging purposes
       console.error(
         "JAGO ERROR:",
         error
       );
 
-      let errorMessage =
-        "JAGO could not connect to the server. Please try again later.";
+      setMessages((previous) => {
+        const updated = [...previous];
 
-      /*
-        If the backend provides a specific error message,
-        display that message to the user.
-      */
-      if (error.response?.data?.detail) {
-        errorMessage =
-          error.response.data.detail;
-      }
+        const lastIndex =
+          updated.length - 1;
 
-      // Display the error message in the chat
-      setMessages((previous) => [
-        ...previous,
-        {
-          role: "bot",
-          text: errorMessage,
-        },
-      ]);
+        if (
+          updated[lastIndex]?.role === "bot"
+        ) {
+          updated[lastIndex] = {
+            ...updated[lastIndex],
+
+            text:
+              error?.message ||
+              "JAGO could not connect to the server. Please try again later.",
+          };
+        }
+
+        return updated;
+      });
+
     } finally {
-      // Stop the loading state after the request is completed
       setLoading(false);
     }
   };
@@ -129,9 +287,11 @@ function Jago() {
         </h1>
 
         <p>
-          Describe your problem. JAGO will understand it,
-          analyze the available information, and suggest
-          practical next steps.
+          Describe your problem. JAGO
+          will understand it, analyze
+          the available information,
+          and suggest practical next
+          steps.
         </p>
 
       </div>
@@ -142,35 +302,47 @@ function Jago() {
 
           {messages.map(
             (message, index) => (
+
               <div
                 key={index}
                 className={message.role}
               >
-                {message.text}
-              </div>
-            )
-          )}
 
-          {/* Display a temporary message while JAGO is processing */}
-          {loading && (
-            <div className="bot">
-              JAGO is analyzing your problem...
-            </div>
+                {message.text && (
+                  <ReactMarkdown
+                    remarkPlugins={[
+                      remarkGfm,
+                    ]}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
+                )}
+
+                {loading &&
+                  index ===
+                    messages.length - 1 &&
+                  message.role === "bot" &&
+                  !message.text && (
+                    <span className="jagoTyping">
+                      ● ● ●
+                    </span>
+                  )}
+
+              </div>
+
+            )
           )}
 
         </div>
 
-        <form
-          onSubmit={sendMessage}
-        >
+        <form onSubmit={sendMessage}>
+
           <input
             type="text"
             placeholder="Describe your problem here..."
             value={question}
             onChange={(e) =>
-              setQuestion(
-                e.target.value
-              )
+              setQuestion(e.target.value)
             }
             disabled={loading}
           />
@@ -184,7 +356,7 @@ function Jago() {
             }
           >
             {loading
-              ? "Thinking..."
+              ? "Generating..."
               : "Send"}
           </button>
 

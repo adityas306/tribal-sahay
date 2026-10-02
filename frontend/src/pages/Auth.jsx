@@ -95,6 +95,7 @@ function Auth({ register = false }) {
             <>
               <label>
                 Full name
+
                 <input
                   type="text"
                   required
@@ -110,6 +111,7 @@ function Auth({ register = false }) {
 
               <label>
                 Mobile number
+
                 <input
                   type="tel"
                   value={form.phone}
@@ -124,6 +126,7 @@ function Auth({ register = false }) {
 
               <label>
                 Course / programme
+
                 <input
                   type="text"
                   value={form.course}
@@ -178,15 +181,28 @@ function Auth({ register = false }) {
                 Annual family income (₹)
 
                 <input
-                  type="number"
-                  min="0"
-                  value={form.income}
-                  onChange={(e) =>
+                  type="text"
+                  inputMode="numeric"
+                  value={
+                    form.income === 0
+                      ? ""
+                      : form.income
+                  }
+                  onChange={(e) => {
+                    const value =
+                      e.target.value.replace(
+                        /\D/g,
+                        ""
+                      );
+
                     updateField(
                       "income",
-                      Number(e.target.value)
-                    )
-                  }
+                      value === ""
+                        ? 0
+                        : Number(value)
+                    );
+                  }}
+                  placeholder="Enter annual income"
                 />
               </label>
             </>

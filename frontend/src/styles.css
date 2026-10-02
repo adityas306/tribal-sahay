@@ -1596,3 +1596,600 @@ footer a:hover {
   }
 
 }
+
+
+/* =========================================================
+   DARK / LIGHT MODE
+========================================================= */
+
+/* Theme Toggle Button */
+.themeToggle {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--white);
+  color: var(--dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-right: 8px;
+}
+
+.themeToggle:hover {
+  transform: rotate(10deg) scale(1.05);
+  border-color: var(--primary);
+}
+
+
+/* =========================================================
+   DARK MODE VARIABLES
+========================================================= */
+
+body.dark-mode {
+  --primary: #4ade80;
+  --primary-dark: #22c55e;
+  --primary-light: #163b25;
+
+  --accent: #fbbf24;
+  --accent-light: #422d08;
+
+  --dark: #f3f4f6;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+
+  --bg: #0f1712;
+  --white: #18221b;
+  --border: #2d3a31;
+
+  --danger: #f87171;
+  --success: #4ade80;
+
+  background: var(--bg);
+  color: var(--text);
+}
+
+
+/* =========================================================
+   GLOBAL DARK MODE
+========================================================= */
+
+body.dark-mode {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+body.dark-mode .app {
+  background: var(--bg);
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+body.dark-mode header {
+  background: rgba(24, 34, 27, 0.95);
+  border-bottom-color: var(--border);
+}
+
+body.dark-mode .brand {
+  color: var(--dark);
+}
+
+body.dark-mode .brand small {
+  color: var(--muted);
+}
+
+body.dark-mode nav a {
+  color: var(--muted);
+}
+
+body.dark-mode nav a:hover,
+body.dark-mode nav a.active {
+  color: var(--primary);
+}
+
+body.dark-mode .userMenu span {
+  color: var(--dark);
+}
+
+body.dark-mode .themeToggle {
+  background: #202c23;
+  border-color: var(--border);
+  color: #fbbf24;
+}
+
+
+/* =========================================================
+   BUTTONS
+========================================================= */
+
+body.dark-mode .btn.secondary {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+
+body.dark-mode .btn.secondary:hover {
+  background: var(--primary-light);
+}
+
+body.dark-mode .ghost {
+  color: var(--primary);
+}
+
+body.dark-mode .ghost:hover {
+  background: var(--primary-light);
+}
+
+body.dark-mode .outline {
+  background: var(--white);
+  color: var(--dark);
+  border-color: var(--border);
+}
+
+body.dark-mode .outline:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+body.dark-mode .hero {
+  background:
+    radial-gradient(
+      circle at top right,
+      #163b25,
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #102016,
+      #0f1712
+    );
+}
+
+body.dark-mode .hero h1 {
+  color: var(--dark);
+}
+
+body.dark-mode .hero p {
+  color: var(--muted);
+}
+
+body.dark-mode .pill {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+body.dark-mode .trust {
+  color: var(--primary);
+}
+
+body.dark-mode .heroCard {
+  background: var(--white);
+  border-color: var(--border);
+  box-shadow:
+    0 25px 60px
+    rgba(0, 0, 0, 0.25);
+}
+
+body.dark-mode .stat {
+  color: var(--primary);
+}
+
+body.dark-mode .mini {
+  border-bottom-color: var(--border);
+}
+
+body.dark-mode .mini b {
+  color: var(--dark);
+}
+
+body.dark-mode .mini span {
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   SECTIONS
+========================================================= */
+
+body.dark-mode .section {
+  background: var(--bg);
+}
+
+body.dark-mode .sectionHead h2 {
+  color: var(--dark);
+}
+
+body.dark-mode .sectionHead a {
+  color: var(--primary);
+}
+
+body.dark-mode .eyebrow {
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   CARDS
+========================================================= */
+
+body.dark-mode .card {
+  background: var(--white);
+  border-color: var(--border);
+  box-shadow:
+    0 10px 30px
+    rgba(0, 0, 0, 0.20);
+}
+
+body.dark-mode .card:hover {
+  box-shadow:
+    0 16px 40px
+    rgba(0, 0, 0, 0.30);
+}
+
+body.dark-mode .tag {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+body.dark-mode .scheme h3 {
+  color: var(--dark);
+}
+
+body.dark-mode .scheme p {
+  color: var(--muted);
+}
+
+body.dark-mode .meta {
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+body.dark-mode .page {
+  background: var(--bg);
+}
+
+body.dark-mode .pageTitle h1 {
+  color: var(--dark);
+}
+
+body.dark-mode .pageTitle p {
+  color: var(--muted);
+}
+
+body.dark-mode .back {
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   DETAIL
+========================================================= */
+
+body.dark-mode .detail {
+  background: var(--white);
+  border-color: var(--border);
+  box-shadow:
+    0 15px 50px
+    rgba(0, 0, 0, 0.20);
+}
+
+body.dark-mode .detail h1,
+body.dark-mode .detail h2 {
+  color: var(--dark);
+}
+
+body.dark-mode .lead,
+body.dark-mode .muted {
+  color: var(--muted);
+}
+
+body.dark-mode .detailGrid div {
+  background: var(--bg);
+}
+
+body.dark-mode .detailGrid b {
+  color: var(--dark);
+}
+
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+body.dark-mode .authWrap {
+  background:
+    radial-gradient(
+      circle at top right,
+      #163b25,
+      transparent 35%
+    ),
+    var(--bg);
+}
+
+body.dark-mode .authCard {
+  background: var(--white);
+  border-color: var(--border);
+  box-shadow:
+    0 20px 60px
+    rgba(0, 0, 0, 0.30);
+}
+
+body.dark-mode .authCard h1 {
+  color: var(--dark);
+}
+
+body.dark-mode .authCard > p {
+  color: var(--muted);
+}
+
+body.dark-mode label {
+  color: var(--dark);
+}
+
+body.dark-mode input,
+body.dark-mode select {
+  background: #111a14;
+  color: var(--dark);
+  border-color: var(--border);
+}
+
+body.dark-mode input::placeholder {
+  color: #6b7280;
+}
+
+body.dark-mode input:focus,
+body.dark-mode select:focus {
+  border-color: var(--primary);
+  box-shadow:
+    0 0 0 3px
+    rgba(74, 222, 128, 0.12);
+}
+
+body.dark-mode input:disabled {
+  background: #202a23;
+}
+
+body.dark-mode .switch {
+  color: var(--muted);
+}
+
+body.dark-mode .switch a {
+  color: var(--primary);
+}
+
+body.dark-mode .error {
+  background: #3b1717;
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+
+
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
+body.dark-mode .welcome h1 {
+  color: var(--dark);
+}
+
+body.dark-mode .welcome p {
+  color: var(--muted);
+}
+
+body.dark-mode .stats > div {
+  background: var(--white);
+  border-color: var(--border);
+}
+
+body.dark-mode .stats b {
+  color: var(--primary);
+}
+
+body.dark-mode .stats span {
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+body.dark-mode .panel {
+  background: var(--white);
+  border-color: var(--border);
+}
+
+body.dark-mode .panelHead h2 {
+  color: var(--dark);
+}
+
+body.dark-mode .panelHead a {
+  color: var(--primary);
+}
+
+body.dark-mode .row {
+  border-bottom-color: var(--border);
+}
+
+body.dark-mode .row b {
+  color: var(--dark);
+}
+
+body.dark-mode .row small {
+  color: var(--muted);
+}
+
+body.dark-mode .status {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+body.dark-mode .quick a {
+  background: var(--bg);
+  color: var(--dark);
+}
+
+body.dark-mode .quick a:hover {
+  background: var(--primary-light);
+  color: var(--primary);
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+body.dark-mode .empty {
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+body.dark-mode .timeline {
+  border-bottom-color: var(--border);
+}
+
+body.dark-mode .lineDot {
+  background: var(--primary);
+  box-shadow:
+    0 0 0 5px
+    var(--primary-light);
+}
+
+body.dark-mode .applicationTitle b {
+  color: var(--dark);
+}
+
+body.dark-mode .timeline small {
+  color: var(--muted);
+}
+
+body.dark-mode .steps {
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   DOCUMENTS
+========================================================= */
+
+body.dark-mode .upload {
+  background: var(--white);
+  border-color: #166534;
+}
+
+body.dark-mode .upload b {
+  color: var(--dark);
+}
+
+body.dark-mode .upload span {
+  color: var(--muted);
+}
+
+
+/* =========================================================
+   JAGO CHAT
+========================================================= */
+
+body.dark-mode .chat {
+  background: var(--white);
+  border-color: var(--border);
+  box-shadow:
+    0 15px 45px
+    rgba(0, 0, 0, 0.25);
+}
+
+body.dark-mode .chatMsgs {
+  background:
+    linear-gradient(
+      180deg,
+      #111a14,
+      #18221b
+    );
+}
+
+body.dark-mode .chatMsgs .bot {
+  background: var(--primary-light);
+  color: var(--dark);
+}
+
+body.dark-mode .chatMsgs .user {
+  background: #166534;
+  color: white;
+}
+
+body.dark-mode .chat form {
+  border-top-color: var(--border);
+}
+
+
+/* =========================================================
+   NOTICE
+========================================================= */
+
+body.dark-mode .notice {
+  background: var(--accent-light);
+  border-color: #854d0e;
+  color: #fde68a;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+body.dark-mode footer {
+  background: #090e0b;
+  color: #9ca3af;
+}
+
+body.dark-mode footer a {
+  color: #4ade80;
+}
+
+
+/* =========================================================
+   SMOOTH TRANSITION
+========================================================= */
+
+body,
+header,
+.hero,
+.heroCard,
+.card,
+.detail,
+.authWrap,
+.authCard,
+.panel,
+.stats > div,
+.upload,
+.chat,
+.chatMsgs,
+input,
+select,
+footer {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}

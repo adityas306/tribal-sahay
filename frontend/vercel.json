@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> 4ab0f01f905f5d3ab15eaf159379c0c2652ae8d5
 {
   "rewrites": [
     {
@@ -9,8 +6,4 @@
       "destination": "/index.html"
     }
   ]
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 4ab0f01f905f5d3ab15eaf159379c0c2652ae8d5

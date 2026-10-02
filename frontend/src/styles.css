@@ -2193,3 +2193,47 @@ footer {
     border-color 0.25s ease,
     box-shadow 0.25s ease;
 }
+
+/* =========================================================
+   PASSWORD EYE ICON
+========================================================= */
+
+.passwordInputWrap {
+  position: relative;
+  width: 100%;
+}
+
+.passwordInputWrap input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 30px;
+  height: 30px;
+
+  padding: 0;
+  border: none;
+  background: transparent;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.passwordToggle svg {
+  width: 19px;
+  height: 19px;
+}
+
+.passwordToggle:hover {
+  color: var(--primary);
+}

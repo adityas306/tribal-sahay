@@ -4,6 +4,7 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import { useEffect, useState } from "react";
 import { getUser, logout } from "../utils/auth";
 
 function Layout({ children }) {
@@ -12,9 +13,28 @@ function Layout({ children }) {
 
   const currentUser = getUser();
 
+  // Dark / Light Mode
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add("dark-mode");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.body.classList.remove("dark-mode");
+      localStorage.setItem("theme", "light");
+    }
+  }, [darkMode]);
+
   const handleLogout = () => {
     logout();
     navigate("/login");
+  };
+
+  const toggleTheme = () => {
+    setDarkMode((prev) => !prev);
   };
 
   return (
@@ -60,25 +80,67 @@ function Layout({ children }) {
                 Dashboard
               </Link>
 
-              <Link to="/schemes">
+              <Link
+                className={
+                  location.pathname === "/schemes"
+                    ? "active"
+                    : ""
+                }
+                to="/schemes"
+              >
                 Scholarships
               </Link>
 
-              <Link to="/applications">
+              <Link
+                className={
+                  location.pathname === "/applications"
+                    ? "active"
+                    : ""
+                }
+                to="/applications"
+              >
                 Applications
               </Link>
 
-              <Link to="/documents">
+              <Link
+                className={
+                  location.pathname === "/documents"
+                    ? "active"
+                    : ""
+                }
+                to="/documents"
+              >
                 Documents
               </Link>
 
-              <Link to="/jago">
+              <Link
+                className={
+                  location.pathname === "/jago"
+                    ? "active"
+                    : ""
+                }
+                to="/jago"
+              >
                 JAGO
               </Link>
 
             </nav>
 
             <div className="userMenu">
+
+              {/* Dark / Light Toggle */}
+              <button
+                className="themeToggle"
+                onClick={toggleTheme}
+                title={
+                  darkMode
+                    ? "Switch to Light Mode"
+                    : "Switch to Dark Mode"
+                }
+              >
+                {darkMode ? "☀️" : "🌙"}
+              </button>
+
               <span>
                 {currentUser.name}
               </span>
@@ -89,10 +151,24 @@ function Layout({ children }) {
               >
                 Sign out
               </button>
+
             </div>
           </>
         ) : (
           <div>
+
+            {/* Dark / Light Toggle */}
+            <button
+              className="themeToggle"
+              onClick={toggleTheme}
+              title={
+                darkMode
+                  ? "Switch to Light Mode"
+                  : "Switch to Dark Mode"
+              }
+            >
+              {darkMode ? "☀️" : "🌙"}
+            </button>
 
             <Link
               className="ghost"

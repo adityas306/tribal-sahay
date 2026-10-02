@@ -53,7 +53,7 @@ function Jago() {
       const token = localStorage.getItem("ts_token");
 
       const baseURL =
-        API.defaults.baseURL || "http://localhost:8000";
+        API.defaults.baseURL || "http://localhost:8000" || "https://tribal-sahay.onrender.com";
 
       const response = await fetch(
         `${baseURL}/api/chat`,

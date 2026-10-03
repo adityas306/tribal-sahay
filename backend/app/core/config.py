@@ -12,7 +12,8 @@ class Settings:
 
     DATABASE_URL = os.getenv(
         "DATABASE_URL",
-        "sqlite:///./tribalsahay.db"
+        "sqlite:///./tribalsahay.db",
+        
     )
 
     FRONTEND_URL = os.getenv(

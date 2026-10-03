@@ -17,7 +17,7 @@
   --jago-page: #f5f7f6;
   --jago-card: #ffffff;
   --jago-chat: #ffffff;
-  --jago-sidebar: #ffffff;
+  --jago-sidebar: #eef7f1;
   --jago-sidebar-item: #f7faf8;
   --jago-sidebar-hover: #ecfdf3;
   --jago-sidebar-active: #dcfce7;
@@ -574,7 +574,7 @@
     Green background ab unnecessarily poori line nahi lega.
   */
   width: fit-content;
-  max-width: min(72%, 680px);
+  max-width: min(86%, 900px);
 }
 
 /* =========================================================
@@ -605,15 +605,11 @@
 .botBubble {
   width: fit-content;
   max-width: 100%;
-
-  background: var(--jago-bot-bubble);
+  padding: 4px 10px 8px 0;
+  background: transparent;
   color: var(--jago-text);
-
-  border: 1px solid var(--jago-bot-border);
-
-  border-top-left-radius: 5px;
-
-  padding: 8px 11px;
+  border: none;
+  border-radius: 0;
 }
 
 /* =========================================================
@@ -623,16 +619,28 @@
 .userBubble {
   width: fit-content;
   max-width: 100%;
+  position: relative;
 
   background: var(--jago-primary);
   color: #ffffff;
 
   border: 1px solid var(--jago-primary);
-
   border-radius: 12px;
   border-top-right-radius: 5px;
 
-  padding: 8px 11px;
+  padding: 6px 10px;
+  line-height: 1.45;
+}
+
+.userBubble::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: -7px;
+  width: 0;
+  height: 0;
+  border-top: 8px solid var(--jago-primary);
+  border-left: 8px solid transparent;
 }
 
 /* =========================================================
@@ -770,8 +778,9 @@
 }
 
 .jagoMdTable {
-  width: 100%;
-  min-width: 420px;
+  width: max-content;
+  min-width: 620px;
+  max-width: none;
   border-collapse: collapse;
   font-size: 13px;
 }
@@ -1012,478 +1021,470 @@
   text-align: right;
 }
 
+
 /* =========================================================
    DARK MODE
-   JAGO GREEN THEME REMAINS UNCHANGED
+   FOLLOWS THE WEBSITE THEME TOGGLE: body.dark-mode
    ========================================================= */
 
-.dark .jagoPage,
-body.dark .jagoPage,
-html.dark .jagoPage,
-[data-theme="dark"] .jagoPage {
+body.dark-mode .jagoPage {
   --jago-primary: #15803d;
   --jago-primary-light: #22c55e;
   --jago-primary-dark: #166534;
 
-  --jago-page: #071b12;
-  --jago-card: #0b2a1b;
-  --jago-chat: #081f14;
-  --jago-sidebar: #0b2a1b;
-  --jago-sidebar-item: #103a25;
-  --jago-sidebar-hover: #14532d;
-  --jago-sidebar-active: #166534;
+  --jago-page: #0f1712;
+  --jago-card: #18221b;
+  --jago-chat: #0f1712;
+  --jago-sidebar: #102016;
+  --jago-sidebar-item: #182c20;
+  --jago-sidebar-hover: #1d3a28;
+  --jago-sidebar-active: #205c35;
 
-  --jago-border: rgba(34, 197, 94, 0.22);
+  --jago-border: #2d3a31;
+  --jago-text: #f3f4f6;
+  --jago-text-soft: #d1fae5;
+  --jago-muted: #9ca3af;
+  --jago-input: #111a14;
 
-  --jago-text: #ecfdf5;
-  --jago-text-soft: #bbf7d0;
-  --jago-muted: #86a995;
+  --jago-bot-bubble: transparent;
+  --jago-bot-border: transparent;
 
-  --jago-input: #0d2b1c;
-
-  --jago-bot-bubble: #0d2b1c;
-  --jago-bot-border: rgba(34, 197, 94, 0.18);
-
-  --jago-code-bg: #06150d;
-  --jago-code-text: #d1fae5;
+  --jago-code-bg: #0b120d;
+  --jago-code-text: #e5fbea;
 
   color: var(--jago-text);
+  background: var(--jago-page);
 }
 
 /* =========================================================
    DARK PAGE TITLE
    ========================================================= */
 
-.dark .jagoPageTitle h1,
-body.dark .jagoPageTitle h1,
-html.dark .jagoPageTitle h1,
-[data-theme="dark"] .jagoPageTitle h1 {
+body.dark-mode .jagoPageTitle h1 {
   color: #4ade80;
 }
 
-.dark .jagoPageTitle p,
-body.dark .jagoPageTitle p,
-html.dark .jagoPageTitle p,
-[data-theme="dark"] .jagoPageTitle p {
-  color: #86a995;
+body.dark-mode .jagoPageTitle p {
+  color: #9ca3af;
 }
 
 /* =========================================================
    DARK SIDEBAR
    ========================================================= */
 
-.dark .jagoSidebar,
-body.dark .jagoSidebar,
-html.dark .jagoSidebar,
-[data-theme="dark"] .jagoSidebar {
+body.dark-mode .jagoSidebar {
   background: var(--jago-sidebar);
   border-color: var(--jago-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
-/* =========================================================
-   DARK NEW CHAT
-   ========================================================= */
-
-.dark .jagoPage .newChatBtn,
-body.dark .jagoPage .newChatBtn,
-html.dark .jagoPage .newChatBtn,
-[data-theme="dark"] .jagoPage .newChatBtn {
-  background: var(--jago-primary);
+body.dark-mode .jagoPage .newChatBtn {
+  background: #15803d;
   color: #ffffff;
-  border-color: var(--jago-primary-light);
+  border-color: #22c55e;
 }
 
-.dark .jagoPage .newChatBtn:hover:not(:disabled),
-body.dark .jagoPage .newChatBtn:hover:not(:disabled),
-html.dark .jagoPage .newChatBtn:hover:not(:disabled),
-[data-theme="dark"] .jagoPage .newChatBtn:hover:not(:disabled) {
-  background: var(--jago-primary-dark);
+body.dark-mode .jagoPage .newChatBtn:hover:not(:disabled) {
+  background: #166534;
 }
 
-/* =========================================================
-   DARK HISTORY TITLE
-   ========================================================= */
-
-.dark .jagoHistoryTitle,
-body.dark .jagoHistoryTitle,
-html.dark .jagoHistoryTitle,
-[data-theme="dark"] .jagoHistoryTitle {
+body.dark-mode .jagoHistoryTitle {
   color: var(--jago-text);
 }
 
-/* =========================================================
-   DARK HISTORY COUNT
-   ========================================================= */
-
-.dark .jagoHistoryCount,
-body.dark .jagoHistoryCount,
-html.dark .jagoHistoryCount,
-[data-theme="dark"] .jagoHistoryCount {
+body.dark-mode .jagoHistoryCount {
   background: rgba(34, 197, 94, 0.16);
   color: #86efac;
 }
 
-/* =========================================================
-   DARK CHAT HISTORY
-   ========================================================= */
-
-.dark .jagoHistory,
-body.dark .jagoHistory,
-html.dark .jagoHistory,
-[data-theme="dark"] .jagoHistory {
-  background: transparent;
-}
-
-.dark .jagoHistoryItem,
-body.dark .jagoHistoryItem,
-html.dark .jagoHistoryItem,
-[data-theme="dark"] .jagoHistoryItem {
+body.dark-mode .jagoHistoryItem {
   background: var(--jago-sidebar-item);
-  border-color: transparent;
 }
 
-.dark .jagoHistoryItem:hover,
-body.dark .jagoHistoryItem:hover,
-html.dark .jagoHistoryItem:hover,
-[data-theme="dark"] .jagoHistoryItem:hover {
+body.dark-mode .jagoHistoryItem:hover {
   background: var(--jago-sidebar-hover);
 }
 
-.dark .jagoHistoryItem.active,
-body.dark .jagoHistoryItem.active,
-html.dark .jagoHistoryItem.active,
-[data-theme="dark"] .jagoHistoryItem.active {
+body.dark-mode .jagoHistoryItem.active {
   background: var(--jago-sidebar-active);
-  border-color: rgba(34, 197, 94, 0.45);
+  border-color: rgba(74, 222, 128, 0.45);
 }
 
-/* =========================================================
-   DARK HISTORY TEXT
-   ========================================================= */
-
-.dark .jagoHistoryOpen,
-body.dark .jagoHistoryOpen,
-html.dark .jagoHistoryOpen,
-[data-theme="dark"] .jagoHistoryOpen {
-  background: transparent;
+body.dark-mode .jagoHistoryOpen,
+body.dark-mode .jagoHistoryText {
   color: var(--jago-text);
 }
 
-.dark .jagoHistoryText,
-body.dark .jagoHistoryText,
-html.dark .jagoHistoryText,
-[data-theme="dark"] .jagoHistoryText {
-  color: var(--jago-text);
-}
-
-/* =========================================================
-   DARK EMPTY HISTORY
-   ========================================================= */
-
-.dark .jagoHistoryEmpty,
-body.dark .jagoHistoryEmpty,
-html.dark .jagoHistoryEmpty,
-[data-theme="dark"] .jagoHistoryEmpty {
+body.dark-mode .jagoHistoryEmpty {
   background: var(--jago-sidebar-item);
   color: var(--jago-muted);
   border-color: var(--jago-border);
 }
 
-/* =========================================================
-   DARK HISTORY ACTIONS
-   ========================================================= */
-
-.dark .jagoIconBtn,
-body.dark .jagoIconBtn,
-html.dark .jagoIconBtn,
-[data-theme="dark"] .jagoIconBtn {
+body.dark-mode .jagoIconBtn {
   color: var(--jago-text-soft);
 }
 
-.dark .jagoIconBtn:hover:not(:disabled),
-body.dark .jagoIconBtn:hover:not(:disabled),
-html.dark .jagoIconBtn:hover:not(:disabled),
-[data-theme="dark"] .jagoIconBtn:hover:not(:disabled) {
+body.dark-mode .jagoIconBtn:hover:not(:disabled) {
   background: rgba(34, 197, 94, 0.16);
   color: #ffffff;
 }
 
-.dark .jagoIconBtn.delete:hover:not(:disabled),
-body.dark .jagoIconBtn.delete:hover:not(:disabled),
-html.dark .jagoIconBtn.delete:hover:not(:disabled),
-[data-theme="dark"] .jagoIconBtn.delete:hover:not(:disabled) {
+body.dark-mode .jagoIconBtn.delete:hover:not(:disabled) {
   background: rgba(239, 68, 68, 0.16);
   color: #fca5a5;
 }
 
 /* =========================================================
-   DARK CHAT
+   DARK CHAT SHELL / TOOLBAR
    ========================================================= */
 
-.dark .jagoPage .jagoChat,
-body.dark .jagoPage .jagoChat,
-html.dark .jagoPage .jagoChat,
-[data-theme="dark"] .jagoPage .jagoChat {
+body.dark-mode .jagoPage .jagoChat {
   background: var(--jago-chat);
   border-color: var(--jago-border);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
 }
 
-/* =========================================================
-   DARK TOOLBAR
-   ========================================================= */
-
-.dark .jagoToolbar,
-body.dark .jagoToolbar,
-html.dark .jagoToolbar,
-[data-theme="dark"] .jagoToolbar {
+body.dark-mode .jagoToolbar,
+body.dark-mode .jagoInputArea,
+body.dark-mode .jagoInputHint {
   background: var(--jago-card);
   border-color: var(--jago-border);
 }
 
-/* =========================================================
-   DARK ASSISTANT TEXT
-   ========================================================= */
-
-.dark .jagoAssistantInfo strong,
-body.dark .jagoAssistantInfo strong,
-html.dark .jagoAssistantInfo strong,
-[data-theme="dark"] .jagoAssistantInfo strong {
+body.dark-mode .jagoAssistantInfo strong {
   color: var(--jago-text);
 }
 
-.dark .jagoAssistantInfo > div:not(.jagoAvatar) span,
-body.dark .jagoAssistantInfo > div:not(.jagoAvatar) span,
-html.dark .jagoAssistantInfo > div:not(.jagoAvatar) span,
-[data-theme="dark"] .jagoAssistantInfo > div:not(.jagoAvatar) span {
+body.dark-mode .jagoAssistantInfo > div:not(.jagoAvatar) span {
   color: var(--jago-muted);
 }
 
-/* =========================================================
-   DARK LANGUAGE SELECT
-   ========================================================= */
-
-.dark .jagoLanguageSelect,
-body.dark .jagoLanguageSelect,
-html.dark .jagoLanguageSelect,
-[data-theme="dark"] .jagoLanguageSelect {
+body.dark-mode .jagoLanguageSelect {
   background: var(--jago-sidebar-item);
   color: var(--jago-text);
-  border-color: rgba(34, 197, 94, 0.35);
+  border-color: rgba(74, 222, 128, 0.35);
 }
 
-.dark .jagoLanguageSelect option,
-body.dark .jagoLanguageSelect option,
-html.dark .jagoLanguageSelect option,
-[data-theme="dark"] .jagoLanguageSelect option {
+body.dark-mode .jagoLanguageSelect option {
   background: var(--jago-card);
   color: var(--jago-text);
 }
 
-/* =========================================================
-   DARK MESSAGES AREA
-   ========================================================= */
-
-.dark .jagoPage .chatMsgs,
-body.dark .jagoPage .chatMsgs,
-html.dark .jagoPage .chatMsgs,
-[data-theme="dark"] .jagoPage .chatMsgs {
+body.dark-mode .jagoPage .chatMsgs {
   background: var(--jago-chat);
-}
-
-/* =========================================================
-   DARK BOT BUBBLE
-   ========================================================= */
-
-.dark .botBubble,
-body.dark .botBubble,
-html.dark .botBubble,
-[data-theme="dark"] .botBubble {
-  background: var(--jago-bot-bubble);
   color: var(--jago-text);
-  border-color: var(--jago-bot-border);
 }
 
 /* =========================================================
-   DARK USER BUBBLE
+   DARK MESSAGE ROWS
+   Prevent global .chatMsgs .bot/.user from painting the
+   entire row. Only the user bubble should be green.
    ========================================================= */
 
-.dark .userBubble,
-body.dark .userBubble,
-html.dark .userBubble,
-[data-theme="dark"] .userBubble {
-  background: var(--jago-primary-dark);
+body.dark-mode .jagoPage .chatMsgs .jagoMessageRow.bot,
+body.dark-mode .jagoPage .chatMsgs .jagoMessageRow.user {
+  background: transparent;
+}
+
+body.dark-mode .jagoPage .chatMsgs .jagoMessageRow.bot,
+body.dark-mode .jagoPage .chatMsgs .jagoMessageColumn,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown {
+  color: var(--jago-text);
+}
+
+body.dark-mode .jagoPage .chatMsgs .botBubble {
+  background: transparent;
+  color: var(--jago-text);
+  border-color: transparent;
+}
+
+body.dark-mode .jagoPage .chatMsgs .userBubble {
+  background: #15803d;
   color: #ffffff;
-  border-color: rgba(34, 197, 94, 0.35);
+  border-color: rgba(74, 222, 128, 0.35);
 }
 
 /* =========================================================
-   DARK MARKDOWN
+   DARK MARKDOWN — ALWAYS READABLE
    ========================================================= */
 
-.dark .jagoMarkdown,
-body.dark .jagoMarkdown,
-html.dark .jagoMarkdown,
-[data-theme="dark"] .jagoMarkdown {
-  color: var(--jago-text);
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown p,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown li,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown h1,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown h2,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown h3,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown td,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown th,
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown strong {
+  color: var(--jago-text) !important;
 }
 
-.dark .jagoMarkdown a,
-body.dark .jagoMarkdown a,
-html.dark .jagoMarkdown a,
-[data-theme="dark"] .jagoMarkdown a {
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown em {
+  color: #d1fae5 !important;
+}
+
+body.dark-mode .jagoPage .chatMsgs .jagoMarkdown a {
   color: #4ade80;
 }
 
-.dark .jagoMdQuote,
-body.dark .jagoMdQuote,
-html.dark .jagoMdQuote,
-[data-theme="dark"] .jagoMdQuote {
+body.dark-mode .jagoPage .chatMsgs .jagoMdQuote {
   background: rgba(34, 197, 94, 0.08);
-  border-left-color: var(--jago-primary-light);
-  color: var(--jago-text-soft);
+  border-left-color: #4ade80;
+  color: #d1fae5;
 }
 
-/* =========================================================
-   DARK INLINE CODE
-   ========================================================= */
-
-.dark .jagoInlineCode,
-body.dark .jagoInlineCode,
-html.dark .jagoInlineCode,
-[data-theme="dark"] .jagoInlineCode {
+body.dark-mode .jagoPage .chatMsgs .jagoInlineCode {
   background: rgba(34, 197, 94, 0.12);
   color: #86efac;
 }
 
-/* =========================================================
-   DARK CODE BLOCK
-   ========================================================= */
-
-.dark .jagoCodeBlock,
-body.dark .jagoCodeBlock,
-html.dark .jagoCodeBlock,
-[data-theme="dark"] .jagoCodeBlock {
+body.dark-mode .jagoPage .chatMsgs .jagoCodeBlock {
   background: var(--jago-code-bg);
   border-color: var(--jago-border);
   color: var(--jago-code-text);
 }
 
-/* =========================================================
-   DARK TABLE
-   ========================================================= */
-
-.dark .jagoMdTable,
-body.dark .jagoMdTable,
-html.dark .jagoMdTable,
-[data-theme="dark"] .jagoMdTable {
-  color: var(--jago-text);
+body.dark-mode .jagoPage .chatMsgs .jagoMdTable th {
+  background: #1d3a28;
+  color: #dcfce7 !important;
 }
 
-.dark .jagoMdTable th,
-body.dark .jagoMdTable th,
-html.dark .jagoMdTable th,
-[data-theme="dark"] .jagoMdTable th {
-  background: var(--jago-sidebar-hover);
-  color: #dcfce7;
-}
-
-.dark .jagoMdTable td,
-body.dark .jagoMdTable td,
-html.dark .jagoMdTable td {
+body.dark-mode .jagoPage .chatMsgs .jagoMdTable td {
   border-color: var(--jago-border);
+  color: #f3f4f6 !important;
 }
 
 /* =========================================================
-   DARK COPY
+   DARK COPY / INPUT / SEND
    ========================================================= */
 
-.dark .jagoCopyBtn,
-body.dark .jagoCopyBtn,
-html.dark .jagoCopyBtn,
-[data-theme="dark"] .jagoCopyBtn {
+body.dark-mode .jagoCopyBtn {
   color: #86efac;
 }
 
-.dark .jagoCopyBtn:hover,
-body.dark .jagoCopyBtn:hover,
-html.dark .jagoCopyBtn:hover,
-[data-theme="dark"] .jagoCopyBtn:hover {
+body.dark-mode .jagoCopyBtn:hover {
   background: rgba(34, 197, 94, 0.12);
   color: #bbf7d0;
 }
 
-/* =========================================================
-   DARK INPUT AREA
-   ========================================================= */
-
-.dark .jagoInputArea,
-body.dark .jagoInputArea,
-html.dark .jagoInputArea,
-[data-theme="dark"] .jagoInputArea {
-  background: var(--jago-card);
-  border-color: var(--jago-border);
-}
-
-/* =========================================================
-   DARK TEXTAREA
-   ========================================================= */
-
-.dark .jagoInputArea textarea,
-body.dark .jagoInputArea textarea,
-html.dark .jagoInputArea textarea,
-[data-theme="dark"] .jagoInputArea textarea {
+body.dark-mode .jagoInputArea textarea {
   background: var(--jago-input);
-  color: var(--jago-text);
-  border-color: rgba(34, 197, 94, 0.28);
+  color: #f3f4f6;
+  border-color: rgba(74, 222, 128, 0.28);
 }
 
-.dark .jagoInputArea textarea::placeholder,
-body.dark .jagoInputArea textarea::placeholder,
-html.dark .jagoInputArea textarea::placeholder,
-[data-theme="dark"] .jagoInputArea textarea::placeholder {
-  color: #6f947d;
+body.dark-mode .jagoInputArea textarea::placeholder {
+  color: #8aa894;
 }
 
-.dark .jagoInputArea textarea:focus,
-body.dark .jagoInputArea textarea:focus,
-html.dark .jagoInputArea textarea:focus,
-[data-theme="dark"] .jagoInputArea textarea:focus {
-  border-color: var(--jago-primary-light);
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+body.dark-mode .jagoInputArea textarea:focus {
+  border-color: #4ade80;
+  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.12);
 }
 
-/* =========================================================
-   DARK SEND BUTTON
-   ========================================================= */
-
-.dark .jagoSendBtn,
-body.dark .jagoSendBtn,
-html.dark .jagoSendBtn,
-[data-theme="dark"] .jagoSendBtn {
-  background: var(--jago-primary);
+body.dark-mode .jagoSendBtn {
+  background: #15803d;
   color: #ffffff;
-  border-color: var(--jago-primary-light);
+  border-color: #22c55e;
 }
 
-.dark .jagoSendBtn:hover:not(:disabled),
-body.dark .jagoSendBtn:hover:not(:disabled),
-html.dark .jagoSendBtn:hover:not(:disabled),
-[data-theme="dark"] .jagoSendBtn:hover:not(:disabled) {
-  background: var(--jago-primary-dark);
+body.dark-mode .jagoSendBtn:hover:not(:disabled) {
+  background: #166534;
+}
+
+body.dark-mode .jagoInputHint {
+  color: #8aa894;
 }
 
 /* =========================================================
-   DARK INPUT HINT
+   PARENT STYLE.CSS COMPATIBILITY
+   The site's global .chatMsgs rules are broad. These more
+   specific selectors keep JAGO's own layout intact.
    ========================================================= */
 
-.dark .jagoInputHint,
-body.dark .jagoInputHint,
-html.dark .jagoInputHint,
-[data-theme="dark"] .jagoInputHint {
-  background: var(--jago-card);
-  color: #6f947d;
+.jagoPage .chatMsgs .jagoMessageRow {
+  max-width: 100%;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+.jagoPage .chatMsgs .jagoMessageRow.bot {
+  background: transparent;
+  color: var(--jago-text);
+}
+
+.jagoPage .chatMsgs .jagoMessageRow.user {
+  background: transparent;
+  color: var(--jago-text);
+}
+
+.jagoPage .chatMsgs .jagoMessageAvatar {
+  max-width: none;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.jagoPage .chatMsgs .jagoMessageColumn {
+  max-width: min(86%, 900px);
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+.jagoPage .chatMsgs .jagoMessageBubble {
+  max-width: 100%;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+.jagoPage .chatMsgs .userBubble {
+  padding: 6px 10px;
+  border-radius: 12px;
+  border-top-right-radius: 5px;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border-radius: 0;
+  font-size: 14px;
+  color: inherit;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdP {
+  margin: 0 0 10px;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdP:last-child {
+  margin-bottom: 0;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdH1,
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdH2,
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdH3 {
+  margin: 14px 0 8px;
+  padding: 0;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdUl,
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdOl {
+  margin: 8px 0 10px;
+  padding-left: 22px;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdLi {
+  margin: 4px 0;
+  padding: 0;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoMdQuote {
+  margin: 10px 0;
+  padding: 9px 12px;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoInlineCode {
+  padding: 2px 5px;
+  margin: 0;
+  border-radius: 5px;
+  font-size: 0.9em;
+}
+
+.jagoPage .chatMsgs .jagoMarkdown .jagoCodeBlock {
+  max-width: 100%;
+  margin: 12px 0;
+  padding: 13px;
+  border-radius: 9px;
+}
+
+.jagoPage .chatMsgs .jagoTableWrap {
+  max-width: 100%;
+  padding: 0;
+  margin: 12px 0;
+  overflow-x: auto;
+}
+
+.jagoPage .chatMsgs .jagoMdTable {
+  width: max-content;
+  min-width: 620px;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.jagoPage .chatMsgs .jagoMdTable th,
+.jagoPage .chatMsgs .jagoMdTable td {
+  max-width: none;
+  padding: 8px 10px;
+  border: 1px solid var(--jago-border);
+  border-radius: 0;
+  font-size: 13px;
+}
+
+.jagoPage .chatMsgs .jagoMdTable th {
+  background: var(--jago-sidebar-hover);
+  color: var(--jago-primary-dark);
+  font-weight: 700;
+}
+
+/* More response/printing area without making the whole page huge. */
+.jagoPage .jagoChat {
+  max-width: none;
+}
+
+.jagoPage .chatMsgs {
+  min-height: 620px;
+  max-height: none;
+  padding: 28px 30px;
+}
+
+/* =========================================================
+   SMALL SCREEN OVERRIDES
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  .jagoPage .chatMsgs .jagoMessageColumn {
+    max-width: 86%;
+  }
+}
+
+@media (max-width: 600px) {
+  .jagoPage .chatMsgs {
+    min-height: 480px;
+    padding: 20px 16px;
+  }
+
+  .jagoPage .chatMsgs .jagoMessageColumn {
+    max-width: 88%;
+  }
+
+  .jagoPage .chatMsgs .jagoMdTable {
+    min-width: 560px;
+  }
+}
+
+@media (max-width: 420px) {
+  .jagoPage .chatMsgs {
+    padding: 16px 12px;
+  }
+
+  .jagoPage .chatMsgs .jagoMessageColumn {
+    max-width: 91%;
+  }
+
+  .jagoPage .chatMsgs .jagoMdTable {
+    min-width: 520px;
+  }
 }
 
 /* =========================================================
@@ -1608,8 +1609,8 @@ html.dark .jagoInputHint,
     padding: 7px 10px;
   }
 
-  .botBubble {
-    padding: 7px 10px;
+ .botBubble {
+    padding: 4px 0 6px;
   }
 
   .userBubble {
@@ -1694,5 +1695,48 @@ html.dark .jagoInputHint,
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* =========================================================
+   JAGO ONLY — PREVENT DASHBOARD OVERFLOW
+   KEEP ALL EXISTING COLORS & STYLING UNCHANGED
+   ========================================================= */
+
+@media (min-width: 801px) {
+
+  .jagoLayout {
+    grid-template-columns: 280px minmax(680px, 1fr);
+
+    width: 100%;
+    min-width: 0;
+
+    overflow-x: auto;
+    overflow-y: visible;
+
+    scrollbar-width: thin;
+  }
+
+  .jagoPage .jagoChat {
+    min-width: 680px;
+    max-width: none;
+  }
+
+  /* Prevent chat header from overflowing */
+  .jagoToolbar {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .jagoAssistantInfo {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .jagoLanguageSelect {
+    min-width: 0;
+    max-width: 150px;
   }
 }

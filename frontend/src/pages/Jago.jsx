@@ -54,6 +54,7 @@ function Jago() {
 
       const baseURL =
         API.defaults.baseURL || "https://tribal-sahay.onrender.com";
+        //  || "http://localhost:8000"
       const response = await fetch(
         `${baseURL}/api/chat`,
         {

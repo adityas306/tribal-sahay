@@ -32,21 +32,31 @@ function Jago() {
 
   const [historyLoading, setHistoryLoading] = useState(true);
 
+  /*
+   * This number changes whenever a streaming response
+   * becomes a final response.
+   *
+   * ReactMarkdown gets a new key and is therefore
+   * completely re-mounted with the final Markdown.
+   */
+  const [markdownVersion, setMarkdownVersion] =
+    useState(0);
+
   const baseURL =
     API.defaults.baseURL ||
     "https://tribal-sahay.onrender.com";
 
-  // --------------------------------------------------
+  // =========================================================
   // TOKEN
-  // --------------------------------------------------
+  // =========================================================
 
   const getToken = () => {
     return localStorage.getItem("ts_token");
   };
 
-  // --------------------------------------------------
-  // LOAD CHAT HISTORY
-  // --------------------------------------------------
+  // =========================================================
+  // LOAD ALL CONVERSATIONS
+  // =========================================================
 
   const loadConversations = async () => {
     try {
@@ -68,7 +78,9 @@ function Jago() {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to load chat history");
+        throw new Error(
+          "Failed to load chat history"
+        );
       }
 
       const data = await response.json();
@@ -92,9 +104,9 @@ function Jago() {
     loadConversations();
   }, []);
 
-  // --------------------------------------------------
+  // =========================================================
   // LOAD SINGLE CONVERSATION
-  // --------------------------------------------------
+  // =========================================================
 
   const loadConversation = async (id) => {
     if (loading) return;
@@ -102,7 +114,9 @@ function Jago() {
     try {
       const token = getToken();
 
-      if (!token) return;
+      if (!token) {
+        return;
+      }
 
       const response = await fetch(
         `${baseURL}/api/chat/${id}`,
@@ -126,7 +140,9 @@ function Jago() {
         data.messages || [];
 
       setConversationId(
-        data.id || data.conversation_id || id
+        data.id ||
+          data.conversation_id ||
+          id
       );
 
       setLanguage(
@@ -136,20 +152,30 @@ function Jago() {
       setMessages([
         INITIAL_MESSAGE,
 
-        ...loadedMessages.map((message) => ({
-          role:
-            message.role === "user"
-              ? "user"
-              : "bot",
+        ...loadedMessages.map(
+          (message) => ({
+            role:
+              message.role === "user"
+                ? "user"
+                : "bot",
 
-          text:
-            message.text ||
-            message.content ||
-            "",
+            text:
+              message.text ||
+              message.content ||
+              "",
 
-          streaming: false,
-        })),
+            streaming: false,
+          })
+        ),
       ]);
+
+      /*
+       * Make sure loaded messages are treated
+       * as final Markdown messages.
+       */
+      setMarkdownVersion(
+        (version) => version + 1
+      );
     } catch (error) {
       console.error(
         "Conversation loading error:",
@@ -158,9 +184,9 @@ function Jago() {
     }
   };
 
-  // --------------------------------------------------
+  // =========================================================
   // NEW CHAT
-  // --------------------------------------------------
+  // =========================================================
 
   const startNewChat = () => {
     if (loading) return;
@@ -174,11 +200,15 @@ function Jago() {
     ]);
 
     setQuestion("");
+
+    setMarkdownVersion(
+      (version) => version + 1
+    );
   };
 
-  // --------------------------------------------------
-  // DELETE CHAT
-  // --------------------------------------------------
+  // =========================================================
+  // DELETE CONVERSATION
+  // =========================================================
 
   const deleteConversation = async (id) => {
     if (loading) return;
@@ -205,12 +235,14 @@ function Jago() {
         );
       }
 
-      setConversations((previous) =>
-        previous.filter(
-          (conversation) =>
-            (conversation.id ||
-              conversation.conversation_id) !== id
-        )
+      setConversations(
+        (previous) =>
+          previous.filter(
+            (conversation) =>
+              (conversation.id ||
+                conversation.conversation_id) !==
+              id
+          )
       );
 
       if (conversationId === id) {
@@ -224,9 +256,9 @@ function Jago() {
     }
   };
 
-  // --------------------------------------------------
-  // RENAME CHAT
-  // --------------------------------------------------
+  // =========================================================
+  // RENAME CONVERSATION
+  // =========================================================
 
   const renameConversation = async (
     id,
@@ -239,7 +271,9 @@ function Jago() {
       currentTitle || "New Chat"
     );
 
-    if (!newTitle?.trim()) return;
+    if (!newTitle?.trim()) {
+      return;
+    }
 
     try {
       const token = getToken();
@@ -270,23 +304,25 @@ function Jago() {
         );
       }
 
-      setConversations((previous) =>
-        previous.map((conversation) => {
-          const conversationIdValue =
-            conversation.id ||
-            conversation.conversation_id;
+      setConversations(
+        (previous) =>
+          previous.map(
+            (conversation) => {
+              const idValue =
+                conversation.id ||
+                conversation.conversation_id;
 
-          if (
-            conversationIdValue === id
-          ) {
-            return {
-              ...conversation,
-              title: newTitle.trim(),
-            };
-          }
+              if (idValue === id) {
+                return {
+                  ...conversation,
+                  title:
+                    newTitle.trim(),
+                };
+              }
 
-          return conversation;
-        })
+              return conversation;
+            }
+          )
       );
     } catch (error) {
       console.error(
@@ -296,9 +332,9 @@ function Jago() {
     }
   };
 
-  // --------------------------------------------------
+  // =========================================================
   // COPY MESSAGE
-  // --------------------------------------------------
+  // =========================================================
 
   const copyMessage = async (text) => {
     try {
@@ -313,28 +349,34 @@ function Jago() {
     }
   };
 
-  // --------------------------------------------------
-  // UPDATE BOT MESSAGE WHILE STREAMING
-  // --------------------------------------------------
+  // =========================================================
+  // UPDATE BOT DURING STREAMING
+  // =========================================================
 
   const updateBotMessage = (text) => {
     setMessages((previous) => {
-      const updated = [...previous];
+      const updated = [
+        ...previous,
+      ];
 
       const lastIndex =
         updated.length - 1;
 
       if (
-        updated[lastIndex]?.role === "bot"
+        updated[lastIndex]?.role ===
+        "bot"
       ) {
         updated[lastIndex] = {
           ...updated[lastIndex],
 
           text,
 
-          // IMPORTANT:
-          // Markdown will NOT be parsed
-          // while response is streaming.
+          /*
+           * VERY IMPORTANT
+           *
+           * While streaming:
+           * do NOT render ReactMarkdown.
+           */
           streaming: true,
         };
       }
@@ -343,38 +385,65 @@ function Jago() {
     });
   };
 
-  // --------------------------------------------------
-  // FINISH BOT MESSAGE
-  // --------------------------------------------------
+  // =========================================================
+  // FINALIZE BOT MESSAGE
+  // =========================================================
 
   const finishBotMessage = (text) => {
+    /*
+     * Debug:
+     * Open browser console and verify that this contains
+     * proper Markdown.
+     */
+    console.log(
+      "FINAL JAGO RESPONSE:",
+      text
+    );
+
     setMessages((previous) => {
-      const updated = [...previous];
+      const updated = [
+        ...previous,
+      ];
 
       const lastIndex =
         updated.length - 1;
 
       if (
-        updated[lastIndex]?.role === "bot"
+        updated[lastIndex]?.role ===
+        "bot"
       ) {
         updated[lastIndex] = {
           ...updated[lastIndex],
 
           text,
 
-          // IMPORTANT:
-          // Now ReactMarkdown will render.
+          /*
+           * Streaming finished.
+           *
+           * ReactMarkdown will now render
+           * the complete response.
+           */
           streaming: false,
         };
       }
 
       return updated;
     });
+
+    /*
+     * Force ReactMarkdown to mount again.
+     *
+     * This is the important part for the
+     * "works only after reload" issue.
+     */
+    setMarkdownVersion(
+      (version) => version + 1
+    );
   };
 
-  // --------------------------------------------------
-  // SEND MESSAGE
-  // --------------------------------------------------
+  // =========================================================
+  // HANDLE SUBMIT
+  // =========================================================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -392,12 +461,13 @@ function Jago() {
       alert(
         "Please login again. Authentication token not found."
       );
+
       return;
     }
 
-    // ----------------------------------------------
-    // PREVIOUS CHAT HISTORY
-    // ----------------------------------------------
+    // =======================================================
+    // PREVIOUS HISTORY
+    // =======================================================
 
     const history = messages
       .filter(
@@ -415,9 +485,9 @@ function Jago() {
         text: message.text,
       }));
 
-    // ----------------------------------------------
-    // ADD USER + EMPTY BOT MESSAGE
-    // ----------------------------------------------
+    // =======================================================
+    // ADD USER MESSAGE
+    // =======================================================
 
     setMessages((previous) => [
       ...previous,
@@ -439,9 +509,9 @@ function Jago() {
 
     setLoading(true);
 
-    // ----------------------------------------------
-    // STREAM STATE
-    // ----------------------------------------------
+    // =======================================================
+    // STREAM VARIABLES
+    // =======================================================
 
     let botReply = "";
 
@@ -487,7 +557,7 @@ function Jago() {
             errorData.message ||
             errorMessage;
         } catch {
-          // Ignore JSON parsing error
+          // Ignore parsing error
         }
 
         throw new Error(
@@ -509,11 +579,13 @@ function Jago() {
 
       let buffer = "";
 
-      // --------------------------------------------
+      // =====================================================
       // PROCESS SSE EVENT
-      // --------------------------------------------
+      // =====================================================
 
-      const processEvent = (rawEvent) => {
+      const processEvent = (
+        rawEvent
+      ) => {
         const lines =
           rawEvent.split("\n");
 
@@ -521,12 +593,18 @@ function Jago() {
           const trimmed =
             line.trim();
 
-          if (!trimmed.startsWith("data:")) {
+          if (
+            !trimmed.startsWith(
+              "data:"
+            )
+          ) {
             continue;
           }
 
           const dataText =
-            trimmed.slice(5).trim();
+            trimmed
+              .slice(5)
+              .trim();
 
           if (!dataText) {
             continue;
@@ -534,11 +612,13 @@ function Jago() {
 
           try {
             const data =
-              JSON.parse(dataText);
+              JSON.parse(
+                dataText
+              );
 
-            // --------------------------------------
+            // -----------------------------------------------
             // CONVERSATION ID
-            // --------------------------------------
+            // -----------------------------------------------
 
             if (
               data.type ===
@@ -558,12 +638,13 @@ function Jago() {
               continue;
             }
 
-            // --------------------------------------
+            // -----------------------------------------------
             // ERROR
-            // --------------------------------------
+            // -----------------------------------------------
 
             if (
-              data.type === "error"
+              data.type ===
+              "error"
             ) {
               throw new Error(
                 data.message ||
@@ -571,15 +652,16 @@ function Jago() {
               );
             }
 
-            // --------------------------------------
+            // -----------------------------------------------
             // TEXT
-            // --------------------------------------
+            // -----------------------------------------------
 
             if (
               typeof data.text ===
               "string"
             ) {
-              botReply += data.text;
+              botReply +=
+                data.text;
 
               updateBotMessage(
                 botReply
@@ -587,6 +669,10 @@ function Jago() {
 
               continue;
             }
+
+            // -----------------------------------------------
+            // CONTENT
+            // -----------------------------------------------
 
             if (
               typeof data.content ===
@@ -602,11 +688,16 @@ function Jago() {
               continue;
             }
 
+            // -----------------------------------------------
+            // DELTA
+            // -----------------------------------------------
+
             if (
               typeof data.delta ===
               "string"
             ) {
-              botReply += data.delta;
+              botReply +=
+                data.delta;
 
               updateBotMessage(
                 botReply
@@ -615,15 +706,18 @@ function Jago() {
               continue;
             }
           } catch (error) {
-            // Some backend implementations
-            // may send plain text instead of JSON.
+            /*
+             * If backend sends plain text instead
+             * of JSON, treat it as text.
+             */
 
             if (
               error instanceof
                 SyntaxError &&
               dataText
             ) {
-              botReply += dataText;
+              botReply +=
+                dataText;
 
               updateBotMessage(
                 botReply
@@ -635,9 +729,9 @@ function Jago() {
         }
       };
 
-      // --------------------------------------------
+      // =====================================================
       // READ STREAM
-      // --------------------------------------------
+      // =====================================================
 
       while (true) {
         const {
@@ -656,58 +750,83 @@ function Jago() {
           }
         );
 
+        /*
+         * SSE events are separated by
+         * an empty line.
+         */
         const events =
-          buffer.split("\n\n");
+          buffer.split(
+            "\n\n"
+          );
 
+        /*
+         * Last element may be incomplete.
+         */
         buffer =
           events.pop() || "";
 
-        for (const event of events) {
-          if (event.trim()) {
-            processEvent(event);
+        for (
+          const event of events
+        ) {
+          if (
+            event.trim()
+          ) {
+            processEvent(
+              event
+            );
           }
         }
       }
 
-      // --------------------------------------------
+      // =====================================================
+      // FLUSH DECODER
+      // =====================================================
+
+      buffer += decoder.decode();
+
+      // =====================================================
       // PROCESS REMAINING BUFFER
-      // --------------------------------------------
+      // =====================================================
 
       if (buffer.trim()) {
         processEvent(buffer);
       }
 
-      // --------------------------------------------
+      // =====================================================
       // FALLBACK
-      // --------------------------------------------
+      // =====================================================
 
       if (!botReply.trim()) {
         botReply =
           "Sorry, I could not generate a response. Please try again.";
       }
 
-      // --------------------------------------------
-      // FINALIZE MARKDOWN
-      // --------------------------------------------
+      // =====================================================
+      // FINAL MARKDOWN RENDER
+      // =====================================================
 
       finishBotMessage(
         botReply
       );
 
-      // --------------------------------------------
-      // SAVE CONVERSATION ID
-      // --------------------------------------------
+      // =====================================================
+      // CONVERSATION ID
+      // =====================================================
 
-      if (currentConversationId) {
+      if (
+        currentConversationId
+      ) {
         setConversationId(
           currentConversationId
         );
       }
 
-      // --------------------------------------------
-      // REFRESH HISTORY
-      // --------------------------------------------
-
+      /*
+       * Only refresh sidebar history.
+       *
+       * This does NOT replace the current
+       * messages array.
+       */
       await loadConversations();
     } catch (error) {
       console.error(
@@ -727,11 +846,16 @@ function Jago() {
     }
   };
 
-  // --------------------------------------------------
-  // ENTER KEY
-  // --------------------------------------------------
+  // =========================================================
+  // KEYBOARD
+  // =========================================================
 
   const handleKeyDown = (event) => {
+    /*
+     * Enter = send
+     *
+     * Shift + Enter = new line
+     */
     if (
       event.key === "Enter" &&
       !event.shiftKey
@@ -742,12 +866,17 @@ function Jago() {
     }
   };
 
-  // --------------------------------------------------
+  // =========================================================
   // RENDER
-  // --------------------------------------------------
+  // =========================================================
 
   return (
     <div className="page">
+
+      {/* =====================================================
+          PAGE TITLE
+      ===================================================== */}
+
       <div className="pageTitle">
         <div className="eyebrow">
           TribalSahay
@@ -758,25 +887,30 @@ function Jago() {
         </h1>
       </div>
 
+
       <div className="jagoLayout">
 
-        {/* ==========================================
+        {/* ===================================================
             SIDEBAR
-        ========================================== */}
+        =================================================== */}
 
         <aside className="jagoSidebar">
 
           <button
             className="btn newChatBtn"
-            onClick={startNewChat}
+            onClick={
+              startNewChat
+            }
             disabled={loading}
           >
             + New Chat
           </button>
 
+
           <div className="jagoHistoryTitle">
             Chat History
           </div>
+
 
           <div className="jagoHistory">
 
@@ -784,7 +918,8 @@ function Jago() {
               <div className="jagoHistoryEmpty">
                 Loading chats...
               </div>
-            ) : conversations.length === 0 ? (
+            ) : conversations.length ===
+              0 ? (
               <div className="jagoHistoryEmpty">
                 No previous chats
               </div>
@@ -802,17 +937,30 @@ function Jago() {
                   return (
                     <div
                       key={id}
-                      className="jagoHistoryItem"
+                      className={
+                        `jagoHistoryItem ${
+                          conversationId ===
+                          id
+                            ? "active"
+                            : ""
+                        }`
+                      }
                     >
+
                       <button
                         className="jagoHistoryOpen"
                         onClick={() =>
-                          loadConversation(id)
+                          loadConversation(
+                            id
+                          )
                         }
-                        disabled={loading}
+                        disabled={
+                          loading
+                        }
                       >
                         {title}
                       </button>
+
 
                       <div className="jagoHistoryActions">
 
@@ -824,10 +972,14 @@ function Jago() {
                               title
                             )
                           }
-                          disabled={loading}
+                          disabled={
+                            loading
+                          }
+                          title="Rename"
                         >
                           ✏️
                         </button>
+
 
                         <button
                           className="btn"
@@ -836,12 +988,16 @@ function Jago() {
                               id
                             )
                           }
-                          disabled={loading}
+                          disabled={
+                            loading
+                          }
+                          title="Delete"
                         >
                           🗑️
                         </button>
 
                       </div>
+
                     </div>
                   );
                 }
@@ -852,13 +1008,16 @@ function Jago() {
 
         </aside>
 
-        {/* ==========================================
+
+        {/* ===================================================
             CHAT
-        ========================================== */}
+        =================================================== */}
 
         <main className="chat">
 
-          {/* TOOLBAR */}
+          {/* =================================================
+              TOOLBAR
+          ================================================= */}
 
           <div className="jagoToolbar">
 
@@ -872,6 +1031,7 @@ function Jago() {
               </span>
             </div>
 
+
             <select
               value={language}
               onChange={(event) =>
@@ -884,8 +1044,12 @@ function Jago() {
               {LANGUAGE_OPTIONS.map(
                 (option) => (
                   <option
-                    key={option.value}
-                    value={option.value}
+                    key={
+                      option.value
+                    }
+                    value={
+                      option.value
+                    }
                   >
                     {option.label}
                   </option>
@@ -895,102 +1059,126 @@ function Jago() {
 
           </div>
 
-          {/* MESSAGES */}
+
+          {/* =================================================
+              MESSAGES
+          ================================================= */}
 
           <div className="chatMsgs">
 
             {messages.map(
-              (message, index) => (
-                <div
-                  key={`${conversationId || "new"}-${index}`}
-                  className={
-                    message.role === "user"
-                      ? "user"
-                      : "bot"
-                  }
-                >
+              (message, index) => {
 
-                  <div className="jagoMessageContent">
+                const isLastMessage =
+                  index ===
+                  messages.length - 1;
 
-                    {/* =================================
-                        STREAMING RESPONSE
-                    ================================= */}
+                const isStreaming =
+                  message.streaming ===
+                  true;
 
-                    {message.text &&
-                    message.streaming ? (
-                      <div className="jagoStreamingText">
-                        {message.text}
-                      </div>
-                    ) : message.text ? (
-
-                      /* =================================
-                          FINAL MARKDOWN RESPONSE
-                      ================================= */
-
-                      <ReactMarkdown
-                        remarkPlugins={[
-                          remarkGfm,
-                        ]}
-                      >
-                        {message.text}
-                      </ReactMarkdown>
-
-                    ) : null}
-
-                    {/* =================================
-                        TYPING INDICATOR
-                    ================================= */}
-
-                    {loading &&
-                      index ===
-                        messages.length - 1 &&
+                return (
+                  <div
+                    key={`${conversationId || "new"}-${index}`}
+                    className={
                       message.role ===
-                        "bot" &&
-                      !message.text && (
-                        <span className="jagoTyping">
-                          ● ● ●
-                        </span>
+                      "user"
+                        ? "user"
+                        : "bot"
+                    }
+                  >
+
+                    <div className="jagoMessageContent">
+
+                      {/* =====================================
+                          STREAMING
+                      ===================================== */}
+
+                      {message.text &&
+                      isStreaming ? (
+                        <div className="jagoStreamingText">
+                          {message.text}
+                        </div>
+                      ) : message.text ? (
+
+                        /* ===================================
+                           FINAL MARKDOWN
+
+                           key forces ReactMarkdown to
+                           completely remount after the
+                           streaming response finishes.
+                        =================================== */
+
+                        <ReactMarkdown
+                          key={`markdown-${markdownVersion}-${index}-${message.text.length}`}
+                          remarkPlugins={[
+                            remarkGfm,
+                          ]}
+                        >
+                          {message.text}
+                        </ReactMarkdown>
+
+                      ) : null}
+
+
+                      {/* =====================================
+                          TYPING
+                      ===================================== */}
+
+                      {loading &&
+                        isLastMessage &&
+                        message.role ===
+                          "bot" &&
+                        !message.text && (
+                          <span className="jagoTyping">
+                            ● ● ●
+                          </span>
+                        )}
+
+                    </div>
+
+
+                    {/* =====================================
+                        COPY
+                    ===================================== */}
+
+                    {message.role ===
+                      "bot" &&
+                      message.text &&
+                      !isStreaming && (
+                        <div className="jagoMessageActions">
+
+                          <button
+                            className="btn"
+                            onClick={() =>
+                              copyMessage(
+                                message.text
+                              )
+                            }
+                          >
+                            Copy
+                          </button>
+
+                        </div>
                       )}
 
                   </div>
-
-                  {/* =================================
-                      COPY BUTTON
-                  ================================= */}
-
-                  {message.role ===
-                    "bot" &&
-                    message.text &&
-                    !message.streaming && (
-                      <div className="jagoMessageActions">
-
-                        <button
-                          className="btn"
-                          onClick={() =>
-                            copyMessage(
-                              message.text
-                            )
-                          }
-                        >
-                          Copy
-                        </button>
-
-                      </div>
-                    )}
-
-                </div>
-              )
+                );
+              }
             )}
 
           </div>
 
-          {/* ==========================================
+
+          {/* =================================================
               INPUT
-          ========================================== */}
+          ================================================= */}
 
           <form
             className="jagoInputArea"
-            onSubmit={handleSubmit}
+            onSubmit={
+              handleSubmit
+            }
           >
 
             <textarea
@@ -1007,6 +1195,7 @@ function Jago() {
               disabled={loading}
               rows={1}
             />
+
 
             <button
               type="submit"

@@ -390,7 +390,8 @@ def chat(
                 yield (
                     "data: "
                     + json.dumps(
-                        conversation_event
+                        conversation_event,
+                        ensure_ascii=False,
                     )
                     + "\n\n"
                 )
@@ -419,21 +420,39 @@ def chat(
 
                     full_response += text
 
-                    # SSE safe text
-                    safe_text = (
-                        text
-                        .replace(
-                            "\r",
-                            "",
-                        )
-                        .replace(
-                            "\n",
-                            "\ndata: ",
-                        )
-                    )
+                    # =====================================
+                    # STRUCTURED SSE TEXT EVENT
+                    # =====================================
+                    #
+                    # IMPORTANT:
+                    # Do NOT manually replace "\n"
+                    # with "\ndata: ".
+                    #
+                    # JSON safely carries:
+                    # - Markdown
+                    # - new lines
+                    # - bullets
+                    # - headings
+                    # - bold text
+                    # - Hindi text
+                    # - code blocks
+                    #
+                    # Frontend can parse this JSON and
+                    # render the text using ReactMarkdown.
+                    # =====================================
+
+                    text_event = {
+                        "type": "text",
+                        "text": text,
+                    }
 
                     yield (
-                        f"data: {safe_text}\n\n"
+                        "data: "
+                        + json.dumps(
+                            text_event,
+                            ensure_ascii=False,
+                        )
+                        + "\n\n"
                     )
 
                 print(
@@ -533,7 +552,8 @@ def chat(
                 yield (
                     "data: "
                     + json.dumps(
-                        error_event
+                        error_event,
+                        ensure_ascii=False,
                     )
                     + "\n\n"
                 )

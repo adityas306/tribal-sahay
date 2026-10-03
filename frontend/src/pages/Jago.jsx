@@ -16,57 +16,98 @@ const INITIAL_MESSAGE = {
   role: "bot",
   text:
     "Namaste! I am JAGO. You can ask me about scholarships, documents, eligibility, applications, payments, or any related problem. I will try to understand your problem and provide a practical solution.",
+  streaming: false,
 };
 
 function Jago() {
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([
-    INITIAL_MESSAGE,
-  ]);
+  const [messages, setMessages] = useState([INITIAL_MESSAGE]);
 
   const [loading, setLoading] = useState(false);
 
-  const [conversations, setConversations] =
-    useState([]);
+  const [conversations, setConversations] = useState([]);
+  const [conversationId, setConversationId] = useState(null);
 
-  const [conversationId, setConversationId] =
-    useState(null);
+  const [language, setLanguage] = useState("auto");
 
-  const [language, setLanguage] =
-    useState("auto");
-
-  const [historyLoading, setHistoryLoading] =
-    useState(true);
+  const [historyLoading, setHistoryLoading] = useState(true);
 
   const baseURL =
     API.defaults.baseURL ||
     "https://tribal-sahay.onrender.com";
 
-  // =====================================================
-  // GET CURRENT TOKEN
-  // =====================================================
+  // --------------------------------------------------
+  // TOKEN
+  // --------------------------------------------------
 
   const getToken = () => {
     return localStorage.getItem("ts_token");
   };
 
-  // =====================================================
-  // LOAD ALL CHAT HISTORY
-  // =====================================================
+  // --------------------------------------------------
+  // LOAD CHAT HISTORY
+  // --------------------------------------------------
 
   const loadConversations = async () => {
-    const token = getToken();
-
-    if (!token) {
-      setConversations([]);
-      setHistoryLoading(false);
-      return;
-    }
-
     try {
+      const token = getToken();
+
+      if (!token) {
+        setHistoryLoading(false);
+        return;
+      }
+
       const response = await fetch(
         `${baseURL}/api/chat/history`,
         {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to load chat history");
+      }
+
+      const data = await response.json();
+
+      setConversations(
+        Array.isArray(data)
+          ? data
+          : data.conversations || []
+      );
+    } catch (error) {
+      console.error(
+        "History loading error:",
+        error
+      );
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadConversations();
+  }, []);
+
+  // --------------------------------------------------
+  // LOAD SINGLE CONVERSATION
+  // --------------------------------------------------
+
+  const loadConversation = async (id) => {
+    if (loading) return;
+
+    try {
+      const token = getToken();
+
+      if (!token) return;
+
+      const response = await fetch(
+        `${baseURL}/api/chat/${id}`,
+        {
+          method: "GET",
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -75,113 +116,51 @@ function Jago() {
 
       if (!response.ok) {
         throw new Error(
-          "Unable to load chat history."
+          "Failed to load conversation"
         );
       }
 
       const data = await response.json();
 
-      setConversations(
-        Array.isArray(data)
-          ? data
-          : []
+      const loadedMessages =
+        data.messages || [];
+
+      setConversationId(
+        data.id || data.conversation_id || id
       );
-    } catch (error) {
-      console.error(
-        "HISTORY ERROR:",
-        error
-      );
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
-  // =====================================================
-  // INITIAL LOAD
-  // =====================================================
-
-  useEffect(() => {
-    loadConversations();
-  }, []);
-
-  // =====================================================
-  // LOAD SINGLE CONVERSATION
-  // =====================================================
-
-  const loadConversation = async (id) => {
-    if (loading) return;
-
-    const token = getToken();
-
-    if (!token) {
-      return;
-    }
-
-    try {
-      setHistoryLoading(true);
-
-      const response = await fetch(
-        `${baseURL}/api/chat/${id}`,
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Unable to load conversation."
-        );
-      }
-
-      const data =
-        await response.json();
-
-      setConversationId(data.id);
 
       setLanguage(
         data.language || "auto"
       );
 
-      const loadedMessages =
-        Array.isArray(data.messages)
-          ? data.messages.map(
-              (message) => ({
-                role:
-                  message.role ===
-                  "user"
-                    ? "user"
-                    : "bot",
+      setMessages([
+        INITIAL_MESSAGE,
 
-                text:
-                  message.text || "",
-              })
-            )
-          : [];
+        ...loadedMessages.map((message) => ({
+          role:
+            message.role === "user"
+              ? "user"
+              : "bot",
 
-      setMessages(
-        loadedMessages.length
-          ? loadedMessages
-          : [INITIAL_MESSAGE]
-      );
+          text:
+            message.text ||
+            message.content ||
+            "",
 
-      setQuestion("");
-
+          streaming: false,
+        })),
+      ]);
     } catch (error) {
       console.error(
-        "CONVERSATION ERROR:",
+        "Conversation loading error:",
         error
       );
-    } finally {
-      setHistoryLoading(false);
     }
   };
 
-  // =====================================================
+  // --------------------------------------------------
   // NEW CHAT
-  // =====================================================
+  // --------------------------------------------------
 
   const startNewChat = () => {
     if (loading) return;
@@ -197,82 +176,57 @@ function Jago() {
     setQuestion("");
   };
 
-  // =====================================================
+  // --------------------------------------------------
   // DELETE CHAT
-  // =====================================================
+  // --------------------------------------------------
 
   const deleteConversation = async (id) => {
     if (loading) return;
 
-    const confirmed =
-      window.confirm(
-        "Delete this conversation?"
-      );
-
-    if (!confirmed) return;
-
-    const token = getToken();
-
-    if (!token) return;
-
     try {
-      const response =
-        await fetch(
-          `${baseURL}/api/chat/${id}`,
-          {
-            method: "DELETE",
+      const token = getToken();
 
-            headers: {
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
+      if (!token) return;
+
+      const response = await fetch(
+        `${baseURL}/api/chat/${id}`,
+        {
+          method: "DELETE",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
-          "Unable to delete conversation."
+          "Failed to delete conversation"
         );
       }
 
-      // Immediately update UI
-      setConversations(
-        (previous) =>
-          previous.filter(
-            (chat) =>
-              chat.id !== id
-          )
+      setConversations((previous) =>
+        previous.filter(
+          (conversation) =>
+            (conversation.id ||
+              conversation.conversation_id) !== id
+        )
       );
 
-      // If currently opened chat was deleted
       if (conversationId === id) {
-        setConversationId(null);
-
-        setLanguage("auto");
-
-        setMessages([
-          INITIAL_MESSAGE,
-        ]);
-
-        setQuestion("");
+        startNewChat();
       }
-
     } catch (error) {
       console.error(
-        "DELETE CHAT ERROR:",
+        "Delete conversation error:",
         error
-      );
-
-      alert(
-        error?.message ||
-          "Unable to delete chat."
       );
     }
   };
 
-  // =====================================================
+  // --------------------------------------------------
   // RENAME CHAT
-  // =====================================================
+  // --------------------------------------------------
 
   const renameConversation = async (
     id,
@@ -280,83 +234,71 @@ function Jago() {
   ) => {
     if (loading) return;
 
-    const newTitle =
-      window.prompt(
-        "Enter chat name:",
-        currentTitle
-      );
+    const newTitle = window.prompt(
+      "Enter new chat name:",
+      currentTitle || "New Chat"
+    );
 
-    if (!newTitle?.trim()) {
-      return;
-    }
-
-    const token = getToken();
-
-    if (!token) return;
+    if (!newTitle?.trim()) return;
 
     try {
-      const response =
-        await fetch(
-          `${baseURL}/api/chat/${id}`,
-          {
-            method: "PATCH",
+      const token = getToken();
 
-            headers: {
-              "Content-Type":
-                "application/json",
+      if (!token) return;
 
-              Authorization:
-                `Bearer ${token}`,
-            },
+      const response = await fetch(
+        `${baseURL}/api/chat/${id}`,
+        {
+          method: "PATCH",
 
-            body: JSON.stringify({
-              title:
-                newTitle.trim(),
-            }),
-          }
-        );
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            title: newTitle.trim(),
+          }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error(
-          "Unable to rename chat."
+          "Failed to rename conversation"
         );
       }
 
-      const data =
-        await response.json();
+      setConversations((previous) =>
+        previous.map((conversation) => {
+          const conversationIdValue =
+            conversation.id ||
+            conversation.conversation_id;
 
-      // Immediately update UI
-      setConversations(
-        (previous) =>
-          previous.map(
-            (chat) =>
-              chat.id === id
-                ? {
-                    ...chat,
-                    title:
-                      data.title ||
-                      newTitle.trim(),
-                  }
-                : chat
-          )
+          if (
+            conversationIdValue === id
+          ) {
+            return {
+              ...conversation,
+              title: newTitle.trim(),
+            };
+          }
+
+          return conversation;
+        })
       );
-
     } catch (error) {
       console.error(
-        "RENAME ERROR:",
+        "Rename conversation error:",
         error
-      );
-
-      alert(
-        error?.message ||
-          "Unable to rename chat."
       );
     }
   };
 
-  // =====================================================
-  // COPY RESPONSE
-  // =====================================================
+  // --------------------------------------------------
+  // COPY MESSAGE
+  // --------------------------------------------------
 
   const copyMessage = async (text) => {
     try {
@@ -365,150 +307,97 @@ function Jago() {
       );
     } catch (error) {
       console.error(
-        "COPY ERROR:",
+        "Copy failed:",
         error
       );
     }
   };
 
-  // =====================================================
-  // UPDATE LAST BOT MESSAGE
-  // =====================================================
+  // --------------------------------------------------
+  // UPDATE BOT MESSAGE WHILE STREAMING
+  // --------------------------------------------------
 
   const updateBotMessage = (text) => {
-    setMessages(
-      (previous) => {
-        const updated =
-          [...previous];
+    setMessages((previous) => {
+      const updated = [...previous];
 
-        const lastIndex =
-          updated.length - 1;
+      const lastIndex =
+        updated.length - 1;
 
-        if (
-          updated[lastIndex]
-            ?.role === "bot"
-        ) {
-          updated[lastIndex] = {
-            ...updated[lastIndex],
-            text,
-          };
-        }
+      if (
+        updated[lastIndex]?.role === "bot"
+      ) {
+        updated[lastIndex] = {
+          ...updated[lastIndex],
 
-        return updated;
+          text,
+
+          // IMPORTANT:
+          // Markdown will NOT be parsed
+          // while response is streaming.
+          streaming: true,
+        };
       }
-    );
+
+      return updated;
+    });
   };
 
-  // =====================================================
-  // PROCESS SSE DATA
-  // =====================================================
+  // --------------------------------------------------
+  // FINISH BOT MESSAGE
+  // --------------------------------------------------
 
-  const processSSEData = (
-    rawData,
-    state
-  ) => {
-    if (!rawData) return;
+  const finishBotMessage = (text) => {
+    setMessages((previous) => {
+      const updated = [...previous];
 
-    if (rawData === "[DONE]") {
-      return;
-    }
-
-    let parsedData = null;
-
-    try {
-      parsedData =
-        JSON.parse(rawData);
-    } catch {
-      parsedData = null;
-    }
-
-    // =================================================
-    // JSON EVENT
-    // =================================================
-
-    if (
-      parsedData &&
-      typeof parsedData ===
-        "object"
-    ) {
-      // Conversation ID
-      if (
-        parsedData.type ===
-          "conversation_id" &&
-        parsedData.conversation_id
-      ) {
-        state.conversationId =
-          parsedData.conversation_id;
-
-        setConversationId(
-          parsedData.conversation_id
-        );
-
-        return;
-      }
-
-      // Backend error
-      if (
-        parsedData.type ===
-          "error"
-      ) {
-        throw new Error(
-          parsedData.message ||
-            "JAGO error."
-        );
-      }
-
-      return;
-    }
-
-    // =================================================
-    // NORMAL AI TEXT
-    // =================================================
-
-    let chunk = rawData;
-
-    try {
-      const decodedChunk =
-        JSON.parse(rawData);
+      const lastIndex =
+        updated.length - 1;
 
       if (
-        typeof decodedChunk ===
-        "string"
+        updated[lastIndex]?.role === "bot"
       ) {
-        chunk =
-          decodedChunk;
+        updated[lastIndex] = {
+          ...updated[lastIndex],
+
+          text,
+
+          // IMPORTANT:
+          // Now ReactMarkdown will render.
+          streaming: false,
+        };
       }
-    } catch {}
 
-    state.botReply += chunk;
-
-    updateBotMessage(
-      state.botReply
-    );
+      return updated;
+    });
   };
 
-  // =====================================================
+  // --------------------------------------------------
   // SEND MESSAGE
-  // =====================================================
+  // --------------------------------------------------
 
-  const sendMessage = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-
-    if (
-      !question.trim() ||
-      loading
-    ) {
-      return;
-    }
 
     const userQuestion =
       question.trim();
 
+    if (!userQuestion || loading) {
+      return;
+    }
+
     const token = getToken();
 
-    // =================================================
-    // FRONTEND HISTORY
-    // =================================================
+    if (!token) {
+      alert(
+        "Please login again. Authentication token not found."
+      );
+      return;
+    }
+
+    // ----------------------------------------------
+    // PREVIOUS CHAT HISTORY
+    // ----------------------------------------------
 
     const history = messages
       .filter(
@@ -523,89 +412,86 @@ function Jago() {
             ? "user"
             : "assistant",
 
-        text:
-          message.text,
+        text: message.text,
       }));
 
-    // =================================================
-    // SHOW USER MESSAGE + EMPTY BOT MESSAGE
-    // =================================================
+    // ----------------------------------------------
+    // ADD USER + EMPTY BOT MESSAGE
+    // ----------------------------------------------
 
-    setMessages(
-      (previous) => [
-        ...previous,
+    setMessages((previous) => [
+      ...previous,
 
-        {
-          role: "user",
-          text: userQuestion,
-        },
+      {
+        role: "user",
+        text: userQuestion,
+        streaming: false,
+      },
 
-        {
-          role: "bot",
-          text: "",
-        },
-      ]
-    );
+      {
+        role: "bot",
+        text: "",
+        streaming: true,
+      },
+    ]);
 
     setQuestion("");
+
     setLoading(true);
 
+    // ----------------------------------------------
+    // STREAM STATE
+    // ----------------------------------------------
+
+    let botReply = "";
+
+    let currentConversationId =
+      conversationId;
+
     try {
-      // =================================================
-      // API REQUEST
-      // =================================================
+      const response = await fetch(
+        `${baseURL}/api/chat`,
+        {
+          method: "POST",
 
-      const response =
-        await fetch(
-          `${baseURL}/api/chat`,
-          {
-            method: "POST",
+          headers: {
+            "Content-Type":
+              "application/json",
 
-            headers: {
-              "Content-Type":
-                "application/json",
+            Authorization: `Bearer ${token}`,
+          },
 
-              ...(token
-                ? {
-                    Authorization:
-                      `Bearer ${token}`,
-                  }
-                : {}),
-            },
+          body: JSON.stringify({
+            message: userQuestion,
 
-            body: JSON.stringify({
-              message:
-                userQuestion,
+            history,
 
-              history,
+            language,
 
-              language,
-
-              conversation_id:
-                conversationId,
-            }),
-          }
-        );
-
-      // =================================================
-      // API ERROR
-      // =================================================
+            conversation_id:
+              conversationId,
+          }),
+        }
+      );
 
       if (!response.ok) {
-        let detail =
-          "JAGO server error.";
+        let errorMessage =
+          "Something went wrong.";
 
         try {
-          const data =
+          const errorData =
             await response.json();
 
-          detail =
-            data?.detail ||
-            detail;
-        } catch {}
+          errorMessage =
+            errorData.detail ||
+            errorData.message ||
+            errorMessage;
+        } catch {
+          // Ignore JSON parsing error
+        }
 
         throw new Error(
-          detail
+          errorMessage
         );
       }
 
@@ -615,366 +501,378 @@ function Jago() {
         );
       }
 
-      // =================================================
-      // STREAM READER
-      // =================================================
-
       const reader =
         response.body.getReader();
 
       const decoder =
-        new TextDecoder(
-          "utf-8"
-        );
+        new TextDecoder("utf-8");
 
       let buffer = "";
 
-      const state = {
-        botReply: "",
-        conversationId:
-          conversationId,
+      // --------------------------------------------
+      // PROCESS SSE EVENT
+      // --------------------------------------------
+
+      const processEvent = (rawEvent) => {
+        const lines =
+          rawEvent.split("\n");
+
+        for (const line of lines) {
+          const trimmed =
+            line.trim();
+
+          if (!trimmed.startsWith("data:")) {
+            continue;
+          }
+
+          const dataText =
+            trimmed.slice(5).trim();
+
+          if (!dataText) {
+            continue;
+          }
+
+          try {
+            const data =
+              JSON.parse(dataText);
+
+            // --------------------------------------
+            // CONVERSATION ID
+            // --------------------------------------
+
+            if (
+              data.type ===
+              "conversation_id"
+            ) {
+              if (
+                data.conversation_id
+              ) {
+                currentConversationId =
+                  data.conversation_id;
+
+                setConversationId(
+                  data.conversation_id
+                );
+              }
+
+              continue;
+            }
+
+            // --------------------------------------
+            // ERROR
+            // --------------------------------------
+
+            if (
+              data.type === "error"
+            ) {
+              throw new Error(
+                data.message ||
+                  "AI response error"
+              );
+            }
+
+            // --------------------------------------
+            // TEXT
+            // --------------------------------------
+
+            if (
+              typeof data.text ===
+              "string"
+            ) {
+              botReply += data.text;
+
+              updateBotMessage(
+                botReply
+              );
+
+              continue;
+            }
+
+            if (
+              typeof data.content ===
+              "string"
+            ) {
+              botReply +=
+                data.content;
+
+              updateBotMessage(
+                botReply
+              );
+
+              continue;
+            }
+
+            if (
+              typeof data.delta ===
+              "string"
+            ) {
+              botReply += data.delta;
+
+              updateBotMessage(
+                botReply
+              );
+
+              continue;
+            }
+          } catch (error) {
+            // Some backend implementations
+            // may send plain text instead of JSON.
+
+            if (
+              error instanceof
+                SyntaxError &&
+              dataText
+            ) {
+              botReply += dataText;
+
+              updateBotMessage(
+                botReply
+              );
+            } else {
+              throw error;
+            }
+          }
+        }
       };
 
-      // =================================================
+      // --------------------------------------------
       // READ STREAM
-      // =================================================
+      // --------------------------------------------
 
       while (true) {
         const {
           value,
           done,
-        } =
-          await reader.read();
+        } = await reader.read();
 
-        if (done) break;
+        if (done) {
+          break;
+        }
 
-        buffer +=
-          decoder.decode(
-            value,
-            {
-              stream: true,
-            }
-          );
+        buffer += decoder.decode(
+          value,
+          {
+            stream: true,
+          }
+        );
 
         const events =
-          buffer.split(
-            "\n\n"
-          );
+          buffer.split("\n\n");
 
         buffer =
           events.pop() || "";
 
-        // =================================================
-        // PROCESS SSE EVENTS
-        // =================================================
-
-        for (
-          const eventText of events
-        ) {
-          const lines =
-            eventText.split(
-              "\n"
-            );
-
-          for (
-            const line of lines
-          ) {
-            if (
-              !line.startsWith(
-                "data:"
-              )
-            ) {
-              continue;
-            }
-
-            const rawData =
-              line
-                .slice(5)
-                .trim();
-
-            if (!rawData) {
-              continue;
-            }
-
-            processSSEData(
-              rawData,
-              state
-            );
+        for (const event of events) {
+          if (event.trim()) {
+            processEvent(event);
           }
         }
       }
 
-      // =================================================
+      // --------------------------------------------
       // PROCESS REMAINING BUFFER
-      // =================================================
+      // --------------------------------------------
 
       if (buffer.trim()) {
-        const lines =
-          buffer.split(
-            "\n"
-          );
-
-        for (
-          const line of lines
-        ) {
-          if (
-            !line.startsWith(
-              "data:"
-            )
-          ) {
-            continue;
-          }
-
-          const rawData =
-            line
-              .slice(5)
-              .trim();
-
-          if (!rawData) {
-            continue;
-          }
-
-          processSSEData(
-            rawData,
-            state
-          );
-        }
+        processEvent(buffer);
       }
 
-      // =================================================
-      // KEEP CONVERSATION ID
-      // =================================================
+      // --------------------------------------------
+      // FALLBACK
+      // --------------------------------------------
 
-      if (
-        state.conversationId
-      ) {
+      if (!botReply.trim()) {
+        botReply =
+          "Sorry, I could not generate a response. Please try again.";
+      }
+
+      // --------------------------------------------
+      // FINALIZE MARKDOWN
+      // --------------------------------------------
+
+      finishBotMessage(
+        botReply
+      );
+
+      // --------------------------------------------
+      // SAVE CONVERSATION ID
+      // --------------------------------------------
+
+      if (currentConversationId) {
         setConversationId(
-          state.conversationId
+          currentConversationId
         );
       }
 
-      // =================================================
-      // EMPTY RESPONSE
-      // =================================================
-
-      if (
-        !state.botReply.trim()
-      ) {
-        updateBotMessage(
-          "JAGO response generate nahi kar paaya. Please try again."
-        );
-      }
-
-      // =================================================
-      // REFRESH CHAT HISTORY
-      // NO PAGE RELOAD REQUIRED
-      // =================================================
+      // --------------------------------------------
+      // REFRESH HISTORY
+      // --------------------------------------------
 
       await loadConversations();
-
     } catch (error) {
       console.error(
-        "JAGO ERROR:",
+        "JAGO AI error:",
         error
       );
 
-      // =================================================
-      // SHOW ERROR
-      // =================================================
+      const errorText =
+        error?.message ||
+        "Something went wrong while connecting to JAGO AI.";
 
-      setMessages(
-        (previous) => {
-          const updated =
-            [...previous];
-
-          const lastIndex =
-            updated.length - 1;
-
-          if (
-            updated[lastIndex]
-              ?.role === "bot"
-          ) {
-            updated[lastIndex] = {
-              ...updated[lastIndex],
-
-              text:
-                error?.message ||
-                "JAGO could not connect to the server. Please try again later.",
-            };
-          }
-
-          return updated;
-        }
+      finishBotMessage(
+        `⚠️ ${errorText}`
       );
-
     } finally {
       setLoading(false);
     }
   };
 
-  // =====================================================
-  // UI
-  // =====================================================
+  // --------------------------------------------------
+  // ENTER KEY
+  // --------------------------------------------------
+
+  const handleKeyDown = (event) => {
+    if (
+      event.key === "Enter" &&
+      !event.shiftKey
+    ) {
+      event.preventDefault();
+
+      handleSubmit(event);
+    }
+  };
+
+  // --------------------------------------------------
+  // RENDER
+  // --------------------------------------------------
 
   return (
     <div className="page">
-
-      {/* PAGE TITLE */}
-
       <div className="pageTitle">
-
-        <span className="eyebrow">
-          JAGO AI
-        </span>
+        <div className="eyebrow">
+          TribalSahay
+        </div>
 
         <h1>
-          Your AI Problem Solver
+          JAGO AI
         </h1>
-
-        <p>
-          Describe your problem. JAGO
-          will understand it, analyze
-          the available information,
-          and suggest practical next
-          steps.
-        </p>
-
       </div>
-
-      {/* MAIN LAYOUT */}
 
       <div className="jagoLayout">
 
-        {/* SIDEBAR */}
+        {/* ==========================================
+            SIDEBAR
+        ========================================== */}
 
         <aside className="jagoSidebar">
 
-          {/* NEW CHAT */}
-
           <button
-            type="button"
             className="btn newChatBtn"
-            onClick={
-              startNewChat
-            }
+            onClick={startNewChat}
             disabled={loading}
           >
             + New Chat
           </button>
 
-          {/* HISTORY TITLE */}
-
           <div className="jagoHistoryTitle">
             Chat History
           </div>
 
-          {/* HISTORY */}
-
           <div className="jagoHistory">
 
             {historyLoading ? (
-
               <div className="jagoHistoryEmpty">
-                Loading...
+                Loading chats...
               </div>
-
-            ) : conversations.length ===
-              0 ? (
-
+            ) : conversations.length === 0 ? (
               <div className="jagoHistoryEmpty">
                 No previous chats
               </div>
-
             ) : (
-
               conversations.map(
-                (chat) => (
+                (conversation) => {
+                  const id =
+                    conversation.id ||
+                    conversation.conversation_id;
 
-                  <div
-                    key={chat.id}
-                    className={`jagoHistoryItem ${
-                      conversationId ===
-                      chat.id
-                        ? "active"
-                        : ""
-                    }`}
-                  >
+                  const title =
+                    conversation.title ||
+                    "New Chat";
 
-                    {/* OPEN CHAT */}
-
-                    <button
-                      type="button"
-                      className="jagoHistoryOpen"
-                      onClick={() =>
-                        loadConversation(
-                          chat.id
-                        )
-                      }
-                      disabled={loading}
+                  return (
+                    <div
+                      key={id}
+                      className="jagoHistoryItem"
                     >
-                      <span>
-                        {chat.title}
-                      </span>
-                    </button>
-
-                    {/* ACTIONS */}
-
-                    <div className="jagoHistoryActions">
-
                       <button
-                        type="button"
-                        title="Rename"
+                        className="jagoHistoryOpen"
                         onClick={() =>
-                          renameConversation(
-                            chat.id,
-                            chat.title
-                          )
+                          loadConversation(id)
                         }
                         disabled={loading}
                       >
-                        ✏️
+                        {title}
                       </button>
 
-                      <button
-                        type="button"
-                        title="Delete"
-                        onClick={() =>
-                          deleteConversation(
-                            chat.id
-                          )
-                        }
-                        disabled={loading}
-                      >
-                        🗑️
-                      </button>
+                      <div className="jagoHistoryActions">
 
+                        <button
+                          className="btn"
+                          onClick={() =>
+                            renameConversation(
+                              id,
+                              title
+                            )
+                          }
+                          disabled={loading}
+                        >
+                          ✏️
+                        </button>
+
+                        <button
+                          className="btn"
+                          onClick={() =>
+                            deleteConversation(
+                              id
+                            )
+                          }
+                          disabled={loading}
+                        >
+                          🗑️
+                        </button>
+
+                      </div>
                     </div>
-
-                  </div>
-
-                )
+                  );
+                }
               )
-
             )}
 
           </div>
 
         </aside>
 
-        {/* CHAT AREA */}
+        {/* ==========================================
+            CHAT
+        ========================================== */}
 
-        <div className="chat">
+        <main className="chat">
 
           {/* TOOLBAR */}
 
           <div className="jagoToolbar">
 
-            <label htmlFor="jago-language">
-              🌐 Language
-            </label>
+            <div>
+              <strong>
+                JAGO
+              </strong>
+
+              <span>
+                AI Assistant
+              </span>
+            </div>
 
             <select
-              id="jago-language"
               value={language}
               onChange={(event) =>
                 setLanguage(
@@ -983,24 +881,16 @@ function Jago() {
               }
               disabled={loading}
             >
-
               {LANGUAGE_OPTIONS.map(
                 (option) => (
-
                   <option
-                    key={
-                      option.value
-                    }
-                    value={
-                      option.value
-                    }
+                    key={option.value}
+                    value={option.value}
                   >
                     {option.label}
                   </option>
-
                 )
               )}
-
             </select>
 
           </div>
@@ -1011,93 +901,111 @@ function Jago() {
 
             {messages.map(
               (message, index) => (
-
                 <div
                   key={`${conversationId || "new"}-${index}`}
                   className={
-                    message.role
+                    message.role === "user"
+                      ? "user"
+                      : "bot"
                   }
                 >
 
-                  {/* MESSAGE */}
+                  <div className="jagoMessageContent">
 
-                  {message.text && (
+                    {/* =================================
+                        STREAMING RESPONSE
+                    ================================= */}
 
-                    <ReactMarkdown
-                      remarkPlugins={[
-                        remarkGfm,
-                      ]}
-                    >
-                      {message.text}
-                    </ReactMarkdown>
+                    {message.text &&
+                    message.streaming ? (
+                      <div className="jagoStreamingText">
+                        {message.text}
+                      </div>
+                    ) : message.text ? (
 
-                  )}
+                      /* =================================
+                          FINAL MARKDOWN RESPONSE
+                      ================================= */
 
-                  {/* TYPING */}
+                      <ReactMarkdown
+                        remarkPlugins={[
+                          remarkGfm,
+                        ]}
+                      >
+                        {message.text}
+                      </ReactMarkdown>
 
-                  {loading &&
-                    index ===
-                      messages.length -
-                        1 &&
-                    message.role ===
-                      "bot" &&
-                    !message.text && (
+                    ) : null}
 
-                      <span className="jagoTyping">
-                        ● ● ●
-                      </span>
+                    {/* =================================
+                        TYPING INDICATOR
+                    ================================= */}
 
-                  )}
+                    {loading &&
+                      index ===
+                        messages.length - 1 &&
+                      message.role ===
+                        "bot" &&
+                      !message.text && (
+                        <span className="jagoTyping">
+                          ● ● ●
+                        </span>
+                      )}
 
-                  {/* COPY */}
+                  </div>
+
+                  {/* =================================
+                      COPY BUTTON
+                  ================================= */}
 
                   {message.role ===
                     "bot" &&
                     message.text &&
-                    index !== 0 && (
+                    !message.streaming && (
+                      <div className="jagoMessageActions">
 
-                    <div className="jagoMessageActions">
+                        <button
+                          className="btn"
+                          onClick={() =>
+                            copyMessage(
+                              message.text
+                            )
+                          }
+                        >
+                          Copy
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() =>
-                          copyMessage(
-                            message.text
-                          )
-                        }
-                      >
-                        📋 Copy
-                      </button>
-
-                    </div>
-
-                  )}
+                      </div>
+                    )}
 
                 </div>
-
               )
             )}
 
           </div>
 
-          {/* INPUT */}
+          {/* ==========================================
+              INPUT
+          ========================================== */}
 
           <form
-            onSubmit={
-              sendMessage
-            }
+            className="jagoInputArea"
+            onSubmit={handleSubmit}
           >
 
-            <input
-              type="text"
-              placeholder="Describe your problem here..."
+            <textarea
               value={question}
               onChange={(event) =>
                 setQuestion(
                   event.target.value
                 )
               }
+              onKeyDown={
+                handleKeyDown
+              }
+              placeholder="Ask JAGO anything about scholarships, schemes, documents, eligibility..."
               disabled={loading}
+              rows={1}
             />
 
             <button
@@ -1109,16 +1017,15 @@ function Jago() {
               }
             >
               {loading
-                ? "Generating..."
+                ? "Thinking..."
                 : "Send"}
             </button>
 
           </form>
 
-        </div>
+        </main>
 
       </div>
-
     </div>
   );
 }

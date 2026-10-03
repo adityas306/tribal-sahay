@@ -1,6 +1,12 @@
+
 /* =========================================================
    JAGO AI
-   Light + Dark Theme
+   TribalSahay
+   Parent-compatible + Light/Dark Theme
+   ========================================================= */
+
+/* =========================================================
+   ROOT / THEME VARIABLES
    ========================================================= */
 
 .jagoPage {
@@ -10,66 +16,38 @@
 
   --jago-page: #f5f7f6;
   --jago-card: #ffffff;
-  --jago-chat: #f8faf9;
-
-  --jago-border: #e2e8e5;
-
-  --jago-text: #17211b;
-  --jago-muted: #6b7280;
-
-  --jago-user: #15803d;
-  --jago-user-text: #ffffff;
-
-  --jago-bot: #ffffff;
-  --jago-bot-text: #17211b;
-
+  --jago-chat: #ffffff;
+  --jago-sidebar: #;
+  --jago-sidebar-item: #f7faf8;
+  --jago-sidebar-hover: #ecfdf3;
+  --jago-sidebar-active: #dcfce7;
+  --jago-border: #dce8e0;
+  --jago-text: #173024;
+  --jago-text-soft: #416052;
+  --jago-muted: #718579;
   --jago-input: #ffffff;
 
-  --jago-code: #111827;
-  --jago-code-text: #e5e7eb;
+  /* Message specific */
+  --jago-bot-bubble: #f1f8f3;
+  --jago-bot-border: #dcebe1;
 
-  --jago-table-head: #f0fdf4;
-  --jago-table-border: #d1d5db;
+  /* Code block */
+  --jago-code-bg: #f3f6f4;
+  --jago-code-text: #173024;
 
-  --jago-shadow:
-    0 12px 35px rgba(15, 23, 42, 0.07);
-
-  min-height: 100vh;
-  color: var(--jago-text);
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 /* =========================================================
-   DARK MODE
+   GLOBAL BOX SIZING
    ========================================================= */
 
-.dark .jagoPage,
-body.dark .jagoPage,
-[data-theme="dark"] .jagoPage {
-  --jago-page: #0d1410;
-  --jago-card: #121a15;
-  --jago-chat: #0f1712;
-
-  --jago-border: #27352d;
-
-  --jago-text: #ecfdf3;
-  --jago-muted: #94a39a;
-
-  --jago-user: #15803d;
-  --jago-user-text: #ffffff;
-
-  --jago-bot: #17221b;
-  --jago-bot-text: #ecfdf3;
-
-  --jago-input: #141e18;
-
-  --jago-code: #090d0b;
-  --jago-code-text: #e5e7eb;
-
-  --jago-table-head: #16301f;
-  --jago-table-border: #304237;
-
-  --jago-shadow:
-    0 15px 45px rgba(0, 0, 0, 0.28);
+.jagoPage *,
+.jagoPage *::before,
+.jagoPage *::after {
+  box-sizing: border-box;
 }
 
 /* =========================================================
@@ -77,31 +55,28 @@ body.dark .jagoPage,
    ========================================================= */
 
 .jagoPageTitle {
-  margin-bottom: 22px;
+  min-width: 0;
 }
 
 .jagoPageTitle h1 {
-  margin-bottom: 5px;
-  color: var(--jago-primary);
+  color: var(--jago-primary-dark);
 }
 
 .jagoPageTitle p {
-  margin: 0;
   color: var(--jago-muted);
-  font-size: 14px;
 }
 
 /* =========================================================
-   LAYOUT
+   MAIN JAGO LAYOUT
    ========================================================= */
 
 .jagoLayout {
   display: grid;
-  grid-template-columns: 275px minmax(0, 1fr);
-  gap: 18px;
-
+  grid-template-columns: 280px minmax(0, 1fr);
   width: 100%;
-  min-height: 650px;
+  min-width: 0;
+  gap: 18px;
+  margin-top: 24px;
 }
 
 /* =========================================================
@@ -111,53 +86,46 @@ body.dark .jagoPage,
 .jagoSidebar {
   display: flex;
   flex-direction: column;
-
-  background: var(--jago-card);
+  min-width: 0;
+  min-height: 620px;
+  padding: 16px;
+  background: var(--jago-sidebar);
   border: 1px solid var(--jago-border);
   border-radius: 18px;
-
-  padding: 16px;
-
-  box-shadow: var(--jago-shadow);
-
-  min-width: 0;
+  box-shadow: 0 8px 24px rgba(15, 70, 40, 0.06);
+  overflow: hidden;
 }
 
 /* =========================================================
-   NEW CHAT
+   NEW CHAT BUTTON
    ========================================================= */
 
-.newChatBtn {
+.jagoPage .newChatBtn {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 44px;
-
-  border: 0;
   border-radius: 11px;
-
   background: var(--jago-primary);
-  color: white;
-
-  font-size: 14px;
+  color: #ffffff;
+  border: 1px solid var(--jago-primary);
   font-weight: 700;
-
   cursor: pointer;
-
   transition:
-    transform 0.18s ease,
-    background 0.18s ease,
-    box-shadow 0.18s ease;
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.newChatBtn:hover {
+.jagoPage .newChatBtn:hover:not(:disabled) {
   background: var(--jago-primary-dark);
-
+  box-shadow: 0 6px 18px rgba(21, 128, 61, 0.22);
   transform: translateY(-1px);
-
-  box-shadow:
-    0 8px 18px rgba(21, 128, 61, 0.2);
 }
 
-.newChatBtn:disabled {
+.jagoPage .newChatBtn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -170,57 +138,89 @@ body.dark .jagoPage,
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  margin: 22px 4px 10px;
-
-  color: var(--jago-muted);
-
-  font-size: 12px;
-  font-weight: 800;
-
-  text-transform: uppercase;
-  letter-spacing: 0.07em;
+  margin: 20px 4px 10px;
+  color: var(--jago-text);
+  font-size: 13px;
+  font-weight: 700;
 }
+
+/* =========================================================
+   HISTORY COUNT
+   ========================================================= */
 
 .jagoHistoryCount {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  min-width: 22px;
+  min-width: 24px;
   height: 22px;
-
-  padding: 0 6px;
-
+  padding: 0 7px;
   border-radius: 999px;
-
   background: rgba(21, 128, 61, 0.1);
   color: var(--jago-primary);
-
   font-size: 11px;
+  font-weight: 700;
 }
 
 /* =========================================================
-   HISTORY
+   HISTORY CONTAINER
    ========================================================= */
 
 .jagoHistory {
   flex: 1;
-
   min-height: 0;
-
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
   overflow-y: auto;
-
-  padding-right: 3px;
+  overflow-x: hidden;
+  padding-right: 2px;
+  background: transparent;
 }
+
+/* =========================================================
+   HISTORY SCROLLBAR
+   ========================================================= */
 
 .jagoHistory::-webkit-scrollbar {
   width: 5px;
 }
 
+.jagoHistory::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 .jagoHistory::-webkit-scrollbar-thumb {
-  background: var(--jago-border);
-  border-radius: 20px;
+  background: rgba(21, 128, 61, 0.22);
+  border-radius: 10px;
+}
+
+/* =========================================================
+   HISTORY EMPTY
+   ========================================================= */
+
+.jagoHistoryEmpty {
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 20px;
+  border: 1px dashed var(--jago-border);
+  border-radius: 12px;
+  background: var(--jago-sidebar-item);
+  color: var(--jago-muted);
+  text-align: center;
+  font-size: 13px;
+}
+
+.jagoHistoryEmpty span {
+  font-size: 24px;
+}
+
+.jagoHistoryEmpty p {
+  margin: 0;
 }
 
 /* =========================================================
@@ -230,151 +230,133 @@ body.dark .jagoPage,
 .jagoHistoryItem {
   display: flex;
   align-items: center;
-
-  gap: 4px;
-
-  margin-bottom: 5px;
-
+  width: 100%;
+  min-width: 0;
   border: 1px solid transparent;
-  border-radius: 10px;
-
+  border-radius: 11px;
+  background: var(--jago-sidebar-item);
   transition:
-    background 0.15s ease,
-    border 0.15s ease;
+    background 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .jagoHistoryItem:hover {
-  background: rgba(21, 128, 61, 0.055);
+  background: var(--jago-sidebar-hover);
 }
 
 .jagoHistoryItem.active {
-  background: rgba(21, 128, 61, 0.1);
-  border-color: rgba(21, 128, 61, 0.18);
+  background: var(--jago-sidebar-active);
+  border-color: rgba(21, 128, 61, 0.2);
 }
+
+/* =========================================================
+   HISTORY OPEN BUTTON
+   ========================================================= */
 
 .jagoHistoryOpen {
   flex: 1;
-
+  min-width: 0;
   display: flex;
   align-items: center;
-
-  min-width: 0;
-
   gap: 9px;
-
-  padding: 10px 8px;
-
-  background: transparent;
+  padding: 10px;
   border: 0;
-
+  background: transparent;
   color: var(--jago-text);
-
   text-align: left;
-
   cursor: pointer;
 }
 
+.jagoHistoryOpen:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* =========================================================
+   HISTORY ICON
+   ========================================================= */
+
 .jagoHistoryIcon {
   flex: 0 0 auto;
-
-  font-size: 13px;
+  font-size: 14px;
 }
+
+/* =========================================================
+   HISTORY TEXT
+   ========================================================= */
 
 .jagoHistoryText {
   min-width: 0;
-
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-
+  text-overflow: ellipsis;
+  color: var(--jago-text);
   font-size: 13px;
+  font-weight: 500;
 }
+
+/* =========================================================
+   HISTORY ACTIONS
+   ========================================================= */
 
 .jagoHistoryActions {
   display: flex;
+  align-items: center;
   gap: 2px;
-
   padding-right: 5px;
 }
+
+/* =========================================================
+   ICON BUTTON
+   ========================================================= */
 
 .jagoIconBtn {
   width: 28px;
   height: 28px;
-
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
   border: 0;
   border-radius: 7px;
-
   background: transparent;
-
+  color: var(--jago-text-soft);
+  font-size: 13px;
   cursor: pointer;
-
-  opacity: 0.6;
-
   transition:
-    background 0.15s ease,
-    opacity 0.15s ease;
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.jagoIconBtn:hover {
-  opacity: 1;
+.jagoIconBtn:hover:not(:disabled) {
   background: rgba(21, 128, 61, 0.1);
+  color: var(--jago-primary);
 }
 
-.jagoIconBtn.delete:hover {
+.jagoIconBtn.delete:hover:not(:disabled) {
   background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
 }
 
 .jagoIconBtn:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
-  opacity: 0.3;
 }
 
 /* =========================================================
-   HISTORY EMPTY
+   MAIN CHAT
    ========================================================= */
 
-.jagoHistoryEmpty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  padding: 35px 10px;
-
-  color: var(--jago-muted);
-
-  text-align: center;
-
-  font-size: 13px;
-}
-
-.jagoHistoryEmpty span {
-  margin-bottom: 7px;
-  font-size: 25px;
-}
-
-.jagoHistoryEmpty p {
-  margin: 0;
-}
-
-/* =========================================================
-   CHAT
-   ========================================================= */
-
-.jagoChat {
-  display: flex;
-  flex-direction: column;
-
+.jagoPage .jagoChat {
   min-width: 0;
-  min-height: 650px;
-
+  min-height: 620px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-
-  background: var(--jago-card);
-
+  background: var(--jago-chat);
   border: 1px solid var(--jago-border);
   border-radius: 18px;
-
-  box-shadow: var(--jago-shadow);
+  box-shadow: 0 8px 24px rgba(15, 70, 40, 0.06);
 }
 
 /* =========================================================
@@ -385,142 +367,162 @@ body.dark .jagoPage,
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  gap: 15px;
-
-  padding: 14px 18px;
-
-  border-bottom: 1px solid var(--jago-border);
-
+  gap: 16px;
+  width: 100%;
+  min-width: 0;
+  padding: 14px 16px;
   background: var(--jago-card);
+  border-bottom: 1px solid var(--jago-border);
+  overflow: hidden;
 }
+
+/* =========================================================
+   ASSISTANT INFO
+   ========================================================= */
 
 .jagoAssistantInfo {
+  min-width: 0;
+  flex: 1;
   display: flex;
   align-items: center;
-
   gap: 10px;
-
-  min-width: 0;
 }
 
-.jagoAvatar,
-.jagoMessageAvatar {
+.jagoAssistantInfo > div:not(.jagoAvatar) {
+  min-width: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex: 0 0 auto;
-
-  width: 38px;
-  height: 38px;
-
-  border-radius: 11px;
-
-  background: var(--jago-primary);
-  color: white;
-
-  font-size: 16px;
-  font-weight: 800;
-
-  box-shadow:
-    0 5px 15px rgba(21, 128, 61, 0.18);
+  flex-direction: column;
 }
 
 .jagoAssistantInfo strong {
-  display: block;
-
+  color: var(--jago-text);
   font-size: 14px;
+  line-height: 1.2;
 }
 
 .jagoAssistantInfo > div:not(.jagoAvatar) span {
-  display: block;
-
   margin-top: 2px;
-
   color: var(--jago-muted);
-
   font-size: 11px;
 }
 
+/* =========================================================
+   JAGO AVATAR
+   ========================================================= */
+
+.jagoAvatar {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 11px;
+  background: var(--jago-primary);
+  color: #ffffff;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 0 5px 12px rgba(21, 128, 61, 0.18);
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
 .jagoStatus {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-
-  gap: 5px;
-
-  margin-left: 7px;
-
+  gap: 6px;
+  margin-left: 4px;
   color: var(--jago-primary);
-
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .jagoStatus > span {
   width: 7px;
   height: 7px;
-
   border-radius: 50%;
-
-  background: #22c55e;
-
-  box-shadow:
-    0 0 0 3px rgba(34, 197, 94, 0.1);
-}
-
-.jagoStatus.thinking {
-  color: #d97706;
+  background: var(--jago-primary-light);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
 }
 
 .jagoStatus.thinking > span {
-  background: #f59e0b;
-  animation: jagoPulse 1s infinite;
+  animation: jagoPulse 1.2s infinite;
 }
 
+@keyframes jagoPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   LANGUAGE SELECT
+   ========================================================= */
+
 .jagoLanguageSelect {
-  min-width: 125px;
-
-  padding: 8px 10px;
-
+  flex: 0 1 150px;
+  width: 150px;
+  max-width: 150px;
+  min-width: 0;
+  height: 38px;
+  padding: 0 30px 0 11px;
+  box-sizing: border-box;
   border: 1px solid var(--jago-border);
   border-radius: 9px;
-
-  background: var(--jago-input);
+  background: var(--jago-card);
   color: var(--jago-text);
-
+  font-size: 12px;
+  font-weight: 600;
   outline: none;
-
   cursor: pointer;
 }
 
 .jagoLanguageSelect:focus {
-  border-color: var(--jago-primary);
+  border-color: var(--jago-primary-light);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
 /* =========================================================
-   MESSAGES
+   CHAT MESSAGES
    ========================================================= */
 
-.chatMsgs {
+.jagoPage .chatMsgs {
   flex: 1;
-
   min-height: 0;
-
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
   overflow-y: auto;
-
-  padding: 25px 25px 30px;
-
+  overflow-x: hidden;
   background: var(--jago-chat);
 }
 
-.chatMsgs::-webkit-scrollbar {
-  width: 7px;
+/* =========================================================
+   CHAT SCROLLBAR
+   ========================================================= */
+
+.jagoPage .chatMsgs::-webkit-scrollbar {
+  width: 6px;
 }
 
-.chatMsgs::-webkit-scrollbar-thumb {
-  background: var(--jago-border);
-  border-radius: 20px;
+.jagoPage .chatMsgs::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.jagoPage .chatMsgs::-webkit-scrollbar-thumb {
+  background: rgba(21, 128, 61, 0.2);
+  border-radius: 10px;
 }
 
 /* =========================================================
@@ -529,32 +531,35 @@ body.dark .jagoPage,
 
 .jagoMessageRow {
   display: flex;
-  align-items: flex-start;
-
-  gap: 9px;
-
   width: 100%;
+  min-width: 0;
+}
 
-  margin-bottom: 18px;
+.jagoMessageRow.bot {
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .jagoMessageRow.user {
   justify-content: flex-end;
 }
 
-.jagoMessageRow.bot {
-  justify-content: flex-start;
-}
+/* =========================================================
+   MESSAGE AVATAR
+   ========================================================= */
 
 .jagoMessageAvatar {
-  width: 30px;
-  height: 30px;
-
-  margin-top: 3px;
-
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 9px;
-
-  font-size: 12px;
+  background: var(--jago-primary);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 /* =========================================================
@@ -562,13 +567,14 @@ body.dark .jagoPage,
    ========================================================= */
 
 .jagoMessageColumn {
-  max-width: min(78%, 780px);
-
   min-width: 0;
-}
 
-.jagoMessageRow.user .jagoMessageColumn {
-  max-width: min(75%, 680px);
+  /*
+    Compact width:
+    Green background ab unnecessarily poori line nahi lega.
+  */
+  width: fit-content;
+  max-width: min(72%, 680px);
 }
 
 /* =========================================================
@@ -576,37 +582,57 @@ body.dark .jagoPage,
    ========================================================= */
 
 .jagoMessageBubble {
-  padding: 13px 16px;
+  /*
+    Background ko actual content ke paas rakhta hai.
+  */
+  width: fit-content;
+  max-width: 100%;
 
-  border-radius: 15px;
+  padding: 8px 11px;
 
-  line-height: 1.65;
+  border-radius: 12px;
 
-  font-size: 14px;
+  line-height: 1.55;
 
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
-.botBubble {
-  background: var(--jago-bot);
-  color: var(--jago-bot-text);
+/* =========================================================
+   BOT
+   ========================================================= */
 
-  border: 1px solid var(--jago-border);
+.botBubble {
+  width: fit-content;
+  max-width: 100%;
+
+  background: var(--jago-bot-bubble);
+  color: var(--jago-text);
+
+  border: 1px solid var(--jago-bot-border);
 
   border-top-left-radius: 5px;
 
-  box-shadow:
-    0 3px 12px rgba(15, 23, 42, 0.035);
+  padding: 8px 11px;
 }
 
-.userBubble {
-  background: var(--jago-user);
-  color: var(--jago-user-text);
+/* =========================================================
+   USER
+   ========================================================= */
 
+.userBubble {
+  width: fit-content;
+  max-width: 100%;
+
+  background: var(--jago-primary);
+  color: #ffffff;
+
+  border: 1px solid var(--jago-primary);
+
+  border-radius: 12px;
   border-top-right-radius: 5px;
 
-  box-shadow:
-    0 5px 14px rgba(21, 128, 61, 0.15);
+  padding: 8px 11px;
 }
 
 /* =========================================================
@@ -614,26 +640,24 @@ body.dark .jagoPage,
    ========================================================= */
 
 .jagoMarkdown {
-  width: 100%;
+  min-width: 0;
+  color: inherit;
+  font-size: 14px;
 }
 
-.jagoMarkdown > :first-child {
-  margin-top: 0;
+.jagoMarkdownStreaming {
+  min-height: 20px;
 }
 
-.jagoMarkdown > :last-child {
-  margin-bottom: 0;
-}
-
-.jagoMdP {
-  margin: 0 0 12px;
-}
+/* =========================================================
+   MARKDOWN HEADINGS
+   ========================================================= */
 
 .jagoMdH1,
 .jagoMdH2,
 .jagoMdH3 {
-  margin: 17px 0 9px;
-
+  margin: 0 0 10px;
+  color: inherit;
   line-height: 1.3;
 }
 
@@ -649,48 +673,43 @@ body.dark .jagoPage,
   font-size: 16px;
 }
 
+/* =========================================================
+   MARKDOWN PARAGRAPH
+   ========================================================= */
+
+.jagoMdP {
+  margin: 0 0 10px;
+}
+
+.jagoMdP:last-child {
+  margin-bottom: 0;
+}
+
+/* =========================================================
+   MARKDOWN LISTS
+   ========================================================= */
+
 .jagoMdUl,
 .jagoMdOl {
-  margin: 7px 0 13px;
-
-  padding-left: 23px;
+  margin: 8px 0 10px;
+  padding-left: 22px;
 }
 
 .jagoMdLi {
   margin: 4px 0;
 }
 
-.jagoMdLi::marker {
-  color: var(--jago-primary);
-  font-weight: 700;
-}
-
-.jagoMdQuote {
-  margin: 13px 0;
-
-  padding: 9px 13px;
-
-  border-left: 3px solid var(--jago-primary);
-
-  background: rgba(21, 128, 61, 0.06);
-
-  color: var(--jago-muted);
-}
-
 /* =========================================================
-   LINKS
+   BLOCKQUOTE
    ========================================================= */
 
-.jagoMarkdown a {
-  color: var(--jago-primary);
-  font-weight: 650;
-
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.userBubble .jagoMarkdown a {
-  color: #dcfce7;
+.jagoMdQuote {
+  margin: 10px 0;
+  padding: 9px 12px;
+  border-left: 3px solid var(--jago-primary);
+  background: rgba(21, 128, 61, 0.06);
+  color: var(--jago-text-soft);
+  border-radius: 0 7px 7px 0;
 }
 
 /* =========================================================
@@ -698,20 +717,10 @@ body.dark .jagoPage,
    ========================================================= */
 
 .jagoInlineCode {
-  display: inline-block;
-
-  padding: 1px 6px;
-
+  padding: 2px 5px;
   border-radius: 5px;
-
-  background: rgba(127, 127, 127, 0.12);
-
-  font-family:
-    "SFMono-Regular",
-    Consolas,
-    "Liberation Mono",
-    monospace;
-
+  background: rgba(21, 128, 61, 0.09);
+  color: var(--jago-primary-dark);
   font-size: 0.9em;
 }
 
@@ -720,32 +729,34 @@ body.dark .jagoPage,
    ========================================================= */
 
 .jagoCodeBlock {
-  margin: 14px 0;
-
-  padding: 14px;
-
+  max-width: 100%;
+  margin: 12px 0;
+  padding: 13px;
   overflow-x: auto;
-
-  border-radius: 10px;
-
-  background: var(--jago-code);
+  border: 1px solid var(--jago-border);
+  border-radius: 9px;
+  background: var(--jago-code-bg);
   color: var(--jago-code-text);
+  font-size: 12px;
+  line-height: 1.55;
+}
 
-  border: 1px solid rgba(255, 255, 255, 0.06);
-
+.jagoCodeBlock code {
   font-family:
     "SFMono-Regular",
     Consolas,
     "Liberation Mono",
     monospace;
-
-  font-size: 12.5px;
-
-  line-height: 1.65;
 }
 
-.jagoCodeBlock code {
-  white-space: pre;
+/* =========================================================
+   LINKS
+   ========================================================= */
+
+.jagoMarkdown a {
+  color: var(--jago-primary);
+  font-weight: 600;
+  text-decoration: underline;
 }
 
 /* =========================================================
@@ -754,276 +765,44 @@ body.dark .jagoPage,
 
 .jagoTableWrap {
   width: 100%;
-
-  margin: 14px 0;
-
+  margin: 12px 0;
   overflow-x: auto;
-
-  border: 1px solid var(--jago-table-border);
-
-  border-radius: 9px;
 }
 
 .jagoMdTable {
   width: 100%;
-
-  min-width: 520px;
-
+  min-width: 420px;
   border-collapse: collapse;
-
   font-size: 13px;
 }
 
 .jagoMdTable th,
 .jagoMdTable td {
-  padding: 9px 11px;
-
-  border-bottom: 1px solid var(--jago-table-border);
-
-  border-right: 1px solid var(--jago-table-border);
-
+  padding: 8px 10px;
+  border: 1px solid var(--jago-border);
   text-align: left;
 }
 
-.jagoMdTable th:last-child,
-.jagoMdTable td:last-child {
-  border-right: 0;
-}
-
-.jagoMdTable tr:last-child td {
-  border-bottom: 0;
-}
-
 .jagoMdTable th {
-  background: var(--jago-table-head);
-
-  color: var(--jago-text);
-
-  font-weight: 750;
-}
-
-.jagoMdTable td {
-  background: var(--jago-bot);
+  background: var(--jago-sidebar-hover);
+  color: var(--jago-primary-dark);
+  font-weight: 700;
 }
 
 /* =========================================================
-   STREAMING
+   STREAMING CURSOR
    ========================================================= */
-
-.jagoMarkdownStreaming {
-  min-height: 18px;
-}
 
 .jagoStreamCursor {
   display: inline-block;
-
   width: 6px;
-  height: 17px;
-
+  height: 16px;
   margin-left: 3px;
-
   vertical-align: -3px;
-
+  background: var(--jago-primary-light);
   border-radius: 2px;
-
-  background: var(--jago-primary);
-
   animation: jagoCursorBlink 0.8s infinite;
 }
-
-/* =========================================================
-   TYPING
-   ========================================================= */
-
-.jagoTyping {
-  display: inline-flex;
-  align-items: center;
-
-  gap: 4px;
-
-  padding: 4px 1px;
-}
-
-.jagoTyping span {
-  width: 6px;
-  height: 6px;
-
-  border-radius: 50%;
-
-  background: var(--jago-primary);
-
-  animation: jagoTyping 1.2s infinite;
-}
-
-.jagoTyping span:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.jagoTyping span:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-/* =========================================================
-   MESSAGE ACTIONS
-   ========================================================= */
-
-.jagoMessageActions {
-  margin-top: 5px;
-}
-
-.jagoCopyBtn {
-  padding: 3px 7px;
-
-  border: 0;
-  border-radius: 6px;
-
-  background: transparent;
-
-  color: var(--jago-muted);
-
-  font-size: 11px;
-
-  cursor: pointer;
-}
-
-.jagoCopyBtn:hover {
-  background: rgba(21, 128, 61, 0.08);
-  color: var(--jago-primary);
-}
-
-/* =========================================================
-   INPUT
-   ========================================================= */
-
-.jagoInputArea {
-  display: flex;
-  align-items: flex-end;
-
-  gap: 9px;
-
-  padding: 14px 17px 7px;
-
-  border-top: 1px solid var(--jago-border);
-
-  background: var(--jago-card);
-}
-
-.jagoInputArea textarea {
-  flex: 1;
-
-  min-height: 45px;
-  max-height: 130px;
-
-  resize: none;
-
-  padding: 12px 13px;
-
-  border: 1px solid var(--jago-border);
-  border-radius: 12px;
-
-  outline: none;
-
-  background: var(--jago-input);
-  color: var(--jago-text);
-
-  font-family: inherit;
-  font-size: 14px;
-
-  transition:
-    border 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.jagoInputArea textarea::placeholder {
-  color: var(--jago-muted);
-}
-
-.jagoInputArea textarea:focus {
-  border-color: var(--jago-primary);
-
-  box-shadow:
-    0 0 0 3px rgba(21, 128, 61, 0.1);
-}
-
-.jagoInputArea textarea:disabled {
-  opacity: 0.7;
-}
-
-/* =========================================================
-   SEND BUTTON
-   ========================================================= */
-
-.jagoSendBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 7px;
-
-  min-width: 92px;
-  min-height: 45px;
-
-  padding: 0 15px;
-
-  border: 0;
-  border-radius: 11px;
-
-  background: var(--jago-primary);
-  color: white;
-
-  font-weight: 750;
-
-  cursor: pointer;
-
-  transition:
-    background 0.18s ease,
-    transform 0.18s ease,
-    box-shadow 0.18s ease;
-}
-
-.jagoSendBtn:hover:not(:disabled) {
-  background: var(--jago-primary-dark);
-
-  transform: translateY(-1px);
-
-  box-shadow:
-    0 7px 17px rgba(21, 128, 61, 0.2);
-}
-
-.jagoSendBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.jagoSendSpinner {
-  width: 14px;
-  height: 14px;
-
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: white;
-
-  border-radius: 50%;
-
-  animation: jagoSpin 0.7s linear infinite;
-}
-
-/* =========================================================
-   INPUT HINT
-   ========================================================= */
-
-.jagoInputHint {
-  padding: 0 18px 11px;
-
-  color: var(--jago-muted);
-
-  font-size: 10px;
-
-  text-align: right;
-}
-
-/* =========================================================
-   ANIMATIONS
-   ========================================================= */
 
 @keyframes jagoCursorBlink {
   0%,
@@ -1037,29 +816,182 @@ body.dark .jagoPage,
   }
 }
 
+/* =========================================================
+   TYPING INDICATOR
+   ========================================================= */
+
+.jagoTyping {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+}
+
+.jagoTyping span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--jago-primary);
+  animation: jagoTyping 1.2s infinite;
+}
+
+.jagoTyping span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.jagoTyping span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
 @keyframes jagoTyping {
   0%,
   60%,
   100% {
+    opacity: 0.3;
     transform: translateY(0);
-    opacity: 0.35;
   }
 
   30% {
-    transform: translateY(-3px);
     opacity: 1;
+    transform: translateY(-3px);
   }
 }
 
-@keyframes jagoPulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
+/* =========================================================
+   MESSAGE ACTIONS
+   ========================================================= */
 
-  50% {
-    opacity: 0.35;
-  }
+.jagoMessageActions {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+/* =========================================================
+   COPY BUTTON
+   ========================================================= */
+
+.jagoCopyBtn {
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--jago-muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.jagoCopyBtn:hover {
+  background: rgba(21, 128, 61, 0.08);
+  color: var(--jago-primary);
+}
+
+/* =========================================================
+   INPUT AREA
+   ========================================================= */
+
+.jagoInputArea {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  padding: 13px 16px;
+  background: var(--jago-card);
+  border-top: 1px solid var(--jago-border);
+}
+
+/* =========================================================
+   TEXTAREA
+   ========================================================= */
+
+.jagoInputArea textarea {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  max-height: 140px;
+  resize: none;
+  padding: 11px 13px;
+  border: 1px solid var(--jago-border);
+  border-radius: 10px;
+  outline: none;
+  background: var(--jago-input);
+  color: var(--jago-text);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.45;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.jagoInputArea textarea::placeholder {
+  color: var(--jago-muted);
+}
+
+.jagoInputArea textarea:focus {
+  border-color: var(--jago-primary-light);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.jagoInputArea textarea:disabled {
+  opacity: 0.65;
+}
+
+/* =========================================================
+   SEND BUTTON
+   ========================================================= */
+
+.jagoSendBtn {
+  flex: 0 0 auto;
+  min-width: 92px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid var(--jago-primary);
+  border-radius: 10px;
+  background: var(--jago-primary);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.jagoSendBtn:hover:not(:disabled) {
+  background: var(--jago-primary-dark);
+  box-shadow: 0 5px 15px rgba(21, 128, 61, 0.18);
+  transform: translateY(-1px);
+}
+
+.jagoSendBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* =========================================================
+   SEND SPINNER
+   ========================================================= */
+
+.jagoSendSpinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: jagoSpin 0.7s linear infinite;
 }
 
 @keyframes jagoSpin {
@@ -1069,43 +1001,583 @@ body.dark .jagoPage,
 }
 
 /* =========================================================
-   MOBILE
+   INPUT HINT
    ========================================================= */
 
-@media (max-width: 900px) {
+.jagoInputHint {
+  padding: 0 16px 10px;
+  background: var(--jago-card);
+  color: var(--jago-muted);
+  font-size: 10px;
+  text-align: right;
+}
+
+/* =========================================================
+   DARK MODE
+   JAGO GREEN THEME REMAINS UNCHANGED
+   ========================================================= */
+
+.dark .jagoPage,
+body.dark .jagoPage,
+html.dark .jagoPage,
+[data-theme="dark"] .jagoPage {
+  --jago-primary: #15803d;
+  --jago-primary-light: #22c55e;
+  --jago-primary-dark: #166534;
+
+  --jago-page: #071b12;
+  --jago-card: #0b2a1b;
+  --jago-chat: #081f14;
+  --jago-sidebar: #0b2a1b;
+  --jago-sidebar-item: #103a25;
+  --jago-sidebar-hover: #14532d;
+  --jago-sidebar-active: #166534;
+
+  --jago-border: rgba(34, 197, 94, 0.22);
+
+  --jago-text: #ecfdf5;
+  --jago-text-soft: #bbf7d0;
+  --jago-muted: #86a995;
+
+  --jago-input: #0d2b1c;
+
+  --jago-bot-bubble: #0d2b1c;
+  --jago-bot-border: rgba(34, 197, 94, 0.18);
+
+  --jago-code-bg: #06150d;
+  --jago-code-text: #d1fae5;
+
+  color: var(--jago-text);
+}
+
+/* =========================================================
+   DARK PAGE TITLE
+   ========================================================= */
+
+.dark .jagoPageTitle h1,
+body.dark .jagoPageTitle h1,
+html.dark .jagoPageTitle h1,
+[data-theme="dark"] .jagoPageTitle h1 {
+  color: #4ade80;
+}
+
+.dark .jagoPageTitle p,
+body.dark .jagoPageTitle p,
+html.dark .jagoPageTitle p,
+[data-theme="dark"] .jagoPageTitle p {
+  color: #86a995;
+}
+
+/* =========================================================
+   DARK SIDEBAR
+   ========================================================= */
+
+.dark .jagoSidebar,
+body.dark .jagoSidebar,
+html.dark .jagoSidebar,
+[data-theme="dark"] .jagoSidebar {
+  background: var(--jago-sidebar);
+  border-color: var(--jago-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+/* =========================================================
+   DARK NEW CHAT
+   ========================================================= */
+
+.dark .jagoPage .newChatBtn,
+body.dark .jagoPage .newChatBtn,
+html.dark .jagoPage .newChatBtn,
+[data-theme="dark"] .jagoPage .newChatBtn {
+  background: var(--jago-primary);
+  color: #ffffff;
+  border-color: var(--jago-primary-light);
+}
+
+.dark .jagoPage .newChatBtn:hover:not(:disabled),
+body.dark .jagoPage .newChatBtn:hover:not(:disabled),
+html.dark .jagoPage .newChatBtn:hover:not(:disabled),
+[data-theme="dark"] .jagoPage .newChatBtn:hover:not(:disabled) {
+  background: var(--jago-primary-dark);
+}
+
+/* =========================================================
+   DARK HISTORY TITLE
+   ========================================================= */
+
+.dark .jagoHistoryTitle,
+body.dark .jagoHistoryTitle,
+html.dark .jagoHistoryTitle,
+[data-theme="dark"] .jagoHistoryTitle {
+  color: var(--jago-text);
+}
+
+/* =========================================================
+   DARK HISTORY COUNT
+   ========================================================= */
+
+.dark .jagoHistoryCount,
+body.dark .jagoHistoryCount,
+html.dark .jagoHistoryCount,
+[data-theme="dark"] .jagoHistoryCount {
+  background: rgba(34, 197, 94, 0.16);
+  color: #86efac;
+}
+
+/* =========================================================
+   DARK CHAT HISTORY
+   ========================================================= */
+
+.dark .jagoHistory,
+body.dark .jagoHistory,
+html.dark .jagoHistory,
+[data-theme="dark"] .jagoHistory {
+  background: transparent;
+}
+
+.dark .jagoHistoryItem,
+body.dark .jagoHistoryItem,
+html.dark .jagoHistoryItem,
+[data-theme="dark"] .jagoHistoryItem {
+  background: var(--jago-sidebar-item);
+  border-color: transparent;
+}
+
+.dark .jagoHistoryItem:hover,
+body.dark .jagoHistoryItem:hover,
+html.dark .jagoHistoryItem:hover,
+[data-theme="dark"] .jagoHistoryItem:hover {
+  background: var(--jago-sidebar-hover);
+}
+
+.dark .jagoHistoryItem.active,
+body.dark .jagoHistoryItem.active,
+html.dark .jagoHistoryItem.active,
+[data-theme="dark"] .jagoHistoryItem.active {
+  background: var(--jago-sidebar-active);
+  border-color: rgba(34, 197, 94, 0.45);
+}
+
+/* =========================================================
+   DARK HISTORY TEXT
+   ========================================================= */
+
+.dark .jagoHistoryOpen,
+body.dark .jagoHistoryOpen,
+html.dark .jagoHistoryOpen,
+[data-theme="dark"] .jagoHistoryOpen {
+  background: transparent;
+  color: var(--jago-text);
+}
+
+.dark .jagoHistoryText,
+body.dark .jagoHistoryText,
+html.dark .jagoHistoryText,
+[data-theme="dark"] .jagoHistoryText {
+  color: var(--jago-text);
+}
+
+/* =========================================================
+   DARK EMPTY HISTORY
+   ========================================================= */
+
+.dark .jagoHistoryEmpty,
+body.dark .jagoHistoryEmpty,
+html.dark .jagoHistoryEmpty,
+[data-theme="dark"] .jagoHistoryEmpty {
+  background: var(--jago-sidebar-item);
+  color: var(--jago-muted);
+  border-color: var(--jago-border);
+}
+
+/* =========================================================
+   DARK HISTORY ACTIONS
+   ========================================================= */
+
+.dark .jagoIconBtn,
+body.dark .jagoIconBtn,
+html.dark .jagoIconBtn,
+[data-theme="dark"] .jagoIconBtn {
+  color: var(--jago-text-soft);
+}
+
+.dark .jagoIconBtn:hover:not(:disabled),
+body.dark .jagoIconBtn:hover:not(:disabled),
+html.dark .jagoIconBtn:hover:not(:disabled),
+[data-theme="dark"] .jagoIconBtn:hover:not(:disabled) {
+  background: rgba(34, 197, 94, 0.16);
+  color: #ffffff;
+}
+
+.dark .jagoIconBtn.delete:hover:not(:disabled),
+body.dark .jagoIconBtn.delete:hover:not(:disabled),
+html.dark .jagoIconBtn.delete:hover:not(:disabled),
+[data-theme="dark"] .jagoIconBtn.delete:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fca5a5;
+}
+
+/* =========================================================
+   DARK CHAT
+   ========================================================= */
+
+.dark .jagoPage .jagoChat,
+body.dark .jagoPage .jagoChat,
+html.dark .jagoPage .jagoChat,
+[data-theme="dark"] .jagoPage .jagoChat {
+  background: var(--jago-chat);
+  border-color: var(--jago-border);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+}
+
+/* =========================================================
+   DARK TOOLBAR
+   ========================================================= */
+
+.dark .jagoToolbar,
+body.dark .jagoToolbar,
+html.dark .jagoToolbar,
+[data-theme="dark"] .jagoToolbar {
+  background: var(--jago-card);
+  border-color: var(--jago-border);
+}
+
+/* =========================================================
+   DARK ASSISTANT TEXT
+   ========================================================= */
+
+.dark .jagoAssistantInfo strong,
+body.dark .jagoAssistantInfo strong,
+html.dark .jagoAssistantInfo strong,
+[data-theme="dark"] .jagoAssistantInfo strong {
+  color: var(--jago-text);
+}
+
+.dark .jagoAssistantInfo > div:not(.jagoAvatar) span,
+body.dark .jagoAssistantInfo > div:not(.jagoAvatar) span,
+html.dark .jagoAssistantInfo > div:not(.jagoAvatar) span,
+[data-theme="dark"] .jagoAssistantInfo > div:not(.jagoAvatar) span {
+  color: var(--jago-muted);
+}
+
+/* =========================================================
+   DARK LANGUAGE SELECT
+   ========================================================= */
+
+.dark .jagoLanguageSelect,
+body.dark .jagoLanguageSelect,
+html.dark .jagoLanguageSelect,
+[data-theme="dark"] .jagoLanguageSelect {
+  background: var(--jago-sidebar-item);
+  color: var(--jago-text);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.dark .jagoLanguageSelect option,
+body.dark .jagoLanguageSelect option,
+html.dark .jagoLanguageSelect option,
+[data-theme="dark"] .jagoLanguageSelect option {
+  background: var(--jago-card);
+  color: var(--jago-text);
+}
+
+/* =========================================================
+   DARK MESSAGES AREA
+   ========================================================= */
+
+.dark .jagoPage .chatMsgs,
+body.dark .jagoPage .chatMsgs,
+html.dark .jagoPage .chatMsgs,
+[data-theme="dark"] .jagoPage .chatMsgs {
+  background: var(--jago-chat);
+}
+
+/* =========================================================
+   DARK BOT BUBBLE
+   ========================================================= */
+
+.dark .botBubble,
+body.dark .botBubble,
+html.dark .botBubble,
+[data-theme="dark"] .botBubble {
+  background: var(--jago-bot-bubble);
+  color: var(--jago-text);
+  border-color: var(--jago-bot-border);
+}
+
+/* =========================================================
+   DARK USER BUBBLE
+   ========================================================= */
+
+.dark .userBubble,
+body.dark .userBubble,
+html.dark .userBubble,
+[data-theme="dark"] .userBubble {
+  background: var(--jago-primary-dark);
+  color: #ffffff;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+/* =========================================================
+   DARK MARKDOWN
+   ========================================================= */
+
+.dark .jagoMarkdown,
+body.dark .jagoMarkdown,
+html.dark .jagoMarkdown,
+[data-theme="dark"] .jagoMarkdown {
+  color: var(--jago-text);
+}
+
+.dark .jagoMarkdown a,
+body.dark .jagoMarkdown a,
+html.dark .jagoMarkdown a,
+[data-theme="dark"] .jagoMarkdown a {
+  color: #4ade80;
+}
+
+.dark .jagoMdQuote,
+body.dark .jagoMdQuote,
+html.dark .jagoMdQuote,
+[data-theme="dark"] .jagoMdQuote {
+  background: rgba(34, 197, 94, 0.08);
+  border-left-color: var(--jago-primary-light);
+  color: var(--jago-text-soft);
+}
+
+/* =========================================================
+   DARK INLINE CODE
+   ========================================================= */
+
+.dark .jagoInlineCode,
+body.dark .jagoInlineCode,
+html.dark .jagoInlineCode,
+[data-theme="dark"] .jagoInlineCode {
+  background: rgba(34, 197, 94, 0.12);
+  color: #86efac;
+}
+
+/* =========================================================
+   DARK CODE BLOCK
+   ========================================================= */
+
+.dark .jagoCodeBlock,
+body.dark .jagoCodeBlock,
+html.dark .jagoCodeBlock,
+[data-theme="dark"] .jagoCodeBlock {
+  background: var(--jago-code-bg);
+  border-color: var(--jago-border);
+  color: var(--jago-code-text);
+}
+
+/* =========================================================
+   DARK TABLE
+   ========================================================= */
+
+.dark .jagoMdTable,
+body.dark .jagoMdTable,
+html.dark .jagoMdTable,
+[data-theme="dark"] .jagoMdTable {
+  color: var(--jago-text);
+}
+
+.dark .jagoMdTable th,
+body.dark .jagoMdTable th,
+html.dark .jagoMdTable th,
+[data-theme="dark"] .jagoMdTable th {
+  background: var(--jago-sidebar-hover);
+  color: #dcfce7;
+}
+
+.dark .jagoMdTable td,
+body.dark .jagoMdTable td,
+html.dark .jagoMdTable td {
+  border-color: var(--jago-border);
+}
+
+/* =========================================================
+   DARK COPY
+   ========================================================= */
+
+.dark .jagoCopyBtn,
+body.dark .jagoCopyBtn,
+html.dark .jagoCopyBtn,
+[data-theme="dark"] .jagoCopyBtn {
+  color: #86efac;
+}
+
+.dark .jagoCopyBtn:hover,
+body.dark .jagoCopyBtn:hover,
+html.dark .jagoCopyBtn:hover,
+[data-theme="dark"] .jagoCopyBtn:hover {
+  background: rgba(34, 197, 94, 0.12);
+  color: #bbf7d0;
+}
+
+/* =========================================================
+   DARK INPUT AREA
+   ========================================================= */
+
+.dark .jagoInputArea,
+body.dark .jagoInputArea,
+html.dark .jagoInputArea,
+[data-theme="dark"] .jagoInputArea {
+  background: var(--jago-card);
+  border-color: var(--jago-border);
+}
+
+/* =========================================================
+   DARK TEXTAREA
+   ========================================================= */
+
+.dark .jagoInputArea textarea,
+body.dark .jagoInputArea textarea,
+html.dark .jagoInputArea textarea,
+[data-theme="dark"] .jagoInputArea textarea {
+  background: var(--jago-input);
+  color: var(--jago-text);
+  border-color: rgba(34, 197, 94, 0.28);
+}
+
+.dark .jagoInputArea textarea::placeholder,
+body.dark .jagoInputArea textarea::placeholder,
+html.dark .jagoInputArea textarea::placeholder,
+[data-theme="dark"] .jagoInputArea textarea::placeholder {
+  color: #6f947d;
+}
+
+.dark .jagoInputArea textarea:focus,
+body.dark .jagoInputArea textarea:focus,
+html.dark .jagoInputArea textarea:focus,
+[data-theme="dark"] .jagoInputArea textarea:focus {
+  border-color: var(--jago-primary-light);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.12);
+}
+
+/* =========================================================
+   DARK SEND BUTTON
+   ========================================================= */
+
+.dark .jagoSendBtn,
+body.dark .jagoSendBtn,
+html.dark .jagoSendBtn,
+[data-theme="dark"] .jagoSendBtn {
+  background: var(--jago-primary);
+  color: #ffffff;
+  border-color: var(--jago-primary-light);
+}
+
+.dark .jagoSendBtn:hover:not(:disabled),
+body.dark .jagoSendBtn:hover:not(:disabled),
+html.dark .jagoSendBtn:hover:not(:disabled),
+[data-theme="dark"] .jagoSendBtn:hover:not(:disabled) {
+  background: var(--jago-primary-dark);
+}
+
+/* =========================================================
+   DARK INPUT HINT
+   ========================================================= */
+
+.dark .jagoInputHint,
+body.dark .jagoInputHint,
+html.dark .jagoInputHint,
+[data-theme="dark"] .jagoInputHint {
+  background: var(--jago-card);
+  color: #6f947d;
+}
+
+/* =========================================================
+   RESPONSIVE — TABLET
+   ========================================================= */
+
+@media (max-width: 1000px) {
+  .jagoLayout {
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 14px;
+  }
+
+  .jagoSidebar {
+    padding: 12px;
+  }
+
+  .jagoMessageColumn {
+    width: fit-content;
+    max-width: 78%;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — SMALL TABLET
+   ========================================================= */
+
+@media (max-width: 800px) {
   .jagoLayout {
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .jagoSidebar {
     min-height: auto;
+    max-height: 240px;
   }
 
   .jagoHistory {
-    max-height: 180px;
+    max-height: 130px;
   }
 
-  .jagoChat {
-    min-height: 650px;
-  }
-}
-
-@media (max-width: 600px) {
-  .jagoPageTitle h1 {
-    font-size: 25px;
-  }
-
-  .jagoLayout {
-    gap: 10px;
-  }
-
-  .jagoSidebar,
-  .jagoChat {
-    border-radius: 13px;
+  .jagoPage .jagoChat {
+    min-height: 600px;
   }
 
   .jagoToolbar {
-    padding: 11px;
+    gap: 10px;
+  }
+
+  .jagoAssistantInfo {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .jagoLanguageSelect {
+    flex: 0 1 125px;
+    width: 125px;
+    max-width: 125px;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE — MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+  .jagoLayout {
+    margin-top: 16px;
+  }
+
+  .jagoSidebar {
+    border-radius: 14px;
+    max-height: 220px;
+  }
+
+  .jagoPage .jagoChat {
+    min-height: 560px;
+    border-radius: 14px;
+  }
+
+  .jagoToolbar {
+    align-items: flex-start;
+    padding: 12px;
+  }
+
+  .jagoAssistantInfo {
+    gap: 7px;
+  }
+
+  .jagoAvatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    font-size: 15px;
   }
 
   .jagoStatus {
@@ -1113,34 +1585,114 @@ body.dark .jagoPage,
   }
 
   .jagoLanguageSelect {
-    min-width: 105px;
+    flex: 0 1 115px;
+    width: 115px;
     max-width: 115px;
+    height: 36px;
+    font-size: 11px;
   }
 
-  .chatMsgs {
-    padding: 17px 10px 20px;
+  .jagoPage .chatMsgs {
+    padding: 15px;
+    gap: 14px;
   }
 
-  .jagoMessageColumn,
-  .jagoMessageRow.user .jagoMessageColumn {
-    max-width: calc(100% - 40px);
+  .jagoMessageColumn {
+    width: fit-content;
+    max-width: 82%;
   }
 
   .jagoMessageBubble {
-    padding: 11px 12px;
-    font-size: 13.5px;
+    width: fit-content;
+    max-width: 100%;
+    padding: 7px 10px;
+  }
+
+  .botBubble {
+    padding: 7px 10px;
+  }
+
+  .userBubble {
+    padding: 7px 10px;
+  }
+
+  .jagoMarkdown {
+    font-size: 13px;
   }
 
   .jagoInputArea {
     padding: 10px;
   }
 
-  .jagoSendBtn {
-    min-width: 75px;
-    padding: 0 10px;
+  .jagoInputHint {
+    padding: 0 10px 8px;
   }
 
-  .jagoInputHint {
+  .jagoSendBtn {
+    min-width: 76px;
+    padding: 0 11px;
+  }
+}
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 420px) {
+  .jagoToolbar {
+    flex-wrap: wrap;
+  }
+
+  .jagoAssistantInfo {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .jagoLanguageSelect {
+    width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .jagoInputArea {
+    gap: 7px;
+  }
+
+  .jagoSendBtn {
+    min-width: 68px;
+    font-size: 11px;
+  }
+
+  .jagoSendBtn span:last-child {
     display: none;
+  }
+
+  .jagoMessageAvatar {
+    width: 28px;
+    height: 28px;
+  }
+
+  .jagoMessageColumn {
+    width: fit-content;
+    max-width: calc(100% - 38px);
+  }
+
+  .jagoMessageRow.user .jagoMessageColumn {
+    max-width: 88%;
+  }
+}
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+  .jagoPage *,
+  .jagoPage *::before,
+  .jagoPage *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

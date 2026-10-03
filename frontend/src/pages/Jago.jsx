@@ -3,7 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
 import API from "../api/api";
-import "./jago.css";
+import "./Jago.css";
 
 const LANGUAGE_OPTIONS = [
   { value: "auto", label: "Auto Detect" },
